@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+   <link rel="stylesheet" href="https://rawgit.com/lvoogdt/Leaflet.awesome-markers/2.0/develop/dist/leaflet.awesome-markers.css">
+   <script src="https://rawgithub.com/lvoogdt/Leaflet.awesome-markers/2.0/develop/dist/leaflet.awesome-markers.js"></script>
+
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.Default.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster-src.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster.js"></script>
+
+   <link rel="stylesheet" href="https://birdage.github.io/Leaflet.awesome-markers/dist/leaflet.awesome.rotate.css">
+
+   
+   
+   
+   
+
+   <style>
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position:absolute;
+        top:0;
+        bottom:0;
+        right:0;
+        left:0;
+      }
+
+   </style>
+</head>
+
+<body>
+
+   <div class="folium-map" id="folium_b907d94aaf1042c1863ae91f07a060e5" style="width: 50%; height: 100%"></div>
+
+   <script>
+
+      
+
+      var base_tile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          minZoom: 1,
+          attribution: 'Map data (c) <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      });
+
+      var baseLayer = {
+        "Base Layer": base_tile
+      };
+
+      /*
+      addition of the wms layers
+      */
+
+      
+
+      /*
+      addition of the tile layers
+      */
+      
+
+      /*
+      list of layers to be added
+      */
+      var layer_list = {
+      
+      };
+
+      /*
+      Bounding box.
+      */
+      var southWest = L.latLng(-90, -180),
+          northEast = L.latLng(90, 180),
+          bounds = L.latLngBounds(southWest, northEast);
+
+      /*
+      Creates the map and adds the selected layers
+      */
+      var map = L.map('folium_b907d94aaf1042c1863ae91f07a060e5', {
+                                       center:[48.8583701, -0.2944813],
+                                       zoom: 15,
+                                       maxBounds: bounds,
+                                       layers: [base_tile]
+                                     });
+
+      L.control.layers(baseLayer, layer_list).addTo(map);
+
+      //cluster group
+      var clusteredmarkers = L.markerClusterGroup();
+      //section for adding clustered markers
+      
+      //add the clustered markers to the group anyway
+      map.addLayer(clusteredmarkers);
+
+      
+
+      
+      var circle_1 = L.circle([48.858164649, 2.294425964], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_1.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/11356599_1478832385762710_112890720_n.jpg width=200 height=200>");
+      circle_1._popup.options.maxWidth = 300;
+      map.addLayer(circle_1)
+      
+      var circle_2 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_2.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfa1/t51.2885-15/s640x640/sh0.08/e35/11375219_1580073945582061_1667049815_n.jpg width=200 height=200>");
+      circle_2._popup.options.maxWidth = 300;
+      map.addLayer(circle_2)
+      
+      var circle_3 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_3.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s320x320/e35/11363995_402958923228759_266385178_n.jpg width=200 height=200>");
+      circle_3._popup.options.maxWidth = 300;
+      map.addLayer(circle_3)
+      
+      var circle_4 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_4.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/11420820_857071524360870_1273643079_n.jpg width=200 height=200>");
+      circle_4._popup.options.maxWidth = 300;
+      map.addLayer(circle_4)
+      
+      var circle_5 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_5.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/11335123_1460132864287716_77776288_n.jpg width=200 height=200>");
+      circle_5._popup.options.maxWidth = 300;
+      map.addLayer(circle_5)
+      
+      var circle_6 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_6.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfa1/t51.2885-15/s640x640/sh0.08/e35/11809916_938734656149231_633820771_n.jpg width=200 height=200>");
+      circle_6._popup.options.maxWidth = 300;
+      map.addLayer(circle_6)
+      
+      var circle_7 = L.circle([48.858164649, 2.294425964], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_7.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/11375413_387946488076229_1572053906_n.jpg width=200 height=200>");
+      circle_7._popup.options.maxWidth = 300;
+      map.addLayer(circle_7)
+      
+      var circle_8 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_8.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s640x640/sh0.08/e35/11371131_792280164219042_1643307891_n.jpg width=200 height=200>");
+      circle_8._popup.options.maxWidth = 300;
+      map.addLayer(circle_8)
+      
+      var circle_9 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_9.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s640x640/sh0.08/e35/11376183_1661584854071110_100029356_n.jpg width=200 height=200>");
+      circle_9._popup.options.maxWidth = 300;
+      map.addLayer(circle_9)
+      
+      var circle_10 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_10.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e35/11326357_487066658133143_777282465_n.jpg width=200 height=200>");
+      circle_10._popup.options.maxWidth = 300;
+      map.addLayer(circle_10)
+      
+      var circle_11 = L.circle([48.858164649, 2.294425964], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_11.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/11336065_1659042661000230_431935063_n.jpg width=200 height=200>");
+      circle_11._popup.options.maxWidth = 300;
+      map.addLayer(circle_11)
+      
+      var circle_12 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_12.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s640x640/sh0.08/e35/11809737_722664417862147_1644327865_n.jpg width=200 height=200>");
+      circle_12._popup.options.maxWidth = 300;
+      map.addLayer(circle_12)
+      
+      var circle_13 = L.circle([48.858164649, 2.294425964], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_13.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xpf1/t51.2885-15/e15/1538503_799305813522555_674167438_n.jpg width=200 height=200>");
+      circle_13._popup.options.maxWidth = 300;
+      map.addLayer(circle_13)
+      
+      var circle_14 = L.circle([48.86025751, 2.293707544], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_14.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfa1/t51.2885-15/s640x640/sh0.08/e35/11371082_849908231757003_1797209876_n.jpg width=200 height=200>");
+      circle_14._popup.options.maxWidth = 300;
+      map.addLayer(circle_14)
+      
+      var circle_15 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_15.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xpa1/t51.2885-15/s640x640/sh0.08/e35/10731983_872947929455449_1586450920_n.jpg width=200 height=200>");
+      circle_15._popup.options.maxWidth = 300;
+      map.addLayer(circle_15)
+      
+      var circle_16 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_16.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/11375754_1632307297037967_1930465959_n.jpg width=200 height=200>");
+      circle_16._popup.options.maxWidth = 300;
+      map.addLayer(circle_16)
+      
+      var circle_17 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_17.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfa1/t51.2885-15/e15/11313215_801629449932450_1719345654_n.jpg width=200 height=200>");
+      circle_17._popup.options.maxWidth = 300;
+      map.addLayer(circle_17)
+      
+      var circle_18 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_18.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfp1/t51.2885-15/s640x640/sh0.08/e35/10005732_113001405712686_1891800423_n.jpg width=200 height=200>");
+      circle_18._popup.options.maxWidth = 300;
+      map.addLayer(circle_18)
+      
+      var circle_19 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_19.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfa1/t51.2885-15/s640x640/sh0.08/e35/11356979_905460119542391_702946277_n.jpg width=200 height=200>");
+      circle_19._popup.options.maxWidth = 300;
+      map.addLayer(circle_19)
+      
+      var circle_20 = L.circle([48.859025596, 2.298117144], 10, {
+                            color: 'red',
+                            fillColor: 'BuGn',
+                            fillOpacity: 0.6
+                            });
+      circle_20.bindPopup("<img src=https://scontent.cdninstagram.com/hphotos-xfa1/t51.2885-15/s640x640/sh0.08/e35/11421962_870740673006617_924367768_n.jpg width=200 height=200>");
+      circle_20._popup.options.maxWidth = 300;
+      map.addLayer(circle_20)
+      
+
+      
+
+      
+
+      
+
+      
+
+
+
+   </script>
+
+</body>
