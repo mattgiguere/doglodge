@@ -36,7 +36,7 @@ def get_credentials_dir():
     return cdir
 
 
-def connect_aws_db(legacy=False):
+def connect_aws_db(legacy=False, write_unicode=False):
     """PURPOSE:
     A function for connecting to the doglodge.io AWS RDS MySQL database.
 
@@ -44,6 +44,9 @@ def connect_aws_db(legacy=False):
         If legacy is set, a PyMySQL connection will be returned.
         Otherwise, a SQLAlchemy engine will be returned. This is
         to handle the deprecated MySQL connections in pandas.
+
+    :param write_unicode: [optional]
+        If set, text will be written to the MySQL DB as unicode.
     """
 
     #retrieve credentials:
@@ -66,6 +69,9 @@ def connect_aws_db(legacy=False):
         cmd += creds[3]+'@'
         cmd += creds[0]+'/'
         cmd += creds[4]
+
+        if write_unicode:
+            cmd += '?charset=utf8'
 
         engine = create_engine(cmd)
         return engine
