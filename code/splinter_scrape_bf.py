@@ -61,7 +61,7 @@ def splinter_scrape_bf(city, state):
 
     bigdf = pd.DataFrame(columns=columns)
 
-    while page <= npages:
+    while (page == 1 or page < npages):
         print('*'*70)
         print('Now on page {}'.format(page))
         archive_links = br.find_by_xpath('//*[@id="results_list"]/div')
@@ -78,6 +78,10 @@ def splinter_scrape_bf(city, state):
         titles = []
         authors = []
         ratings = []
+        hnms = []
+        hiurls = []
+        bids = []
+        lnks = []
 
         for lnk in archive_links:
             hotel_names.append(lnk.find_by_xpath('div[2]/h1/a').value)
@@ -121,6 +125,10 @@ def splinter_scrape_bf(city, state):
                 authors.append(rev.find_by_xpath('div/div[2]').text)
                 texts.append(rev.find_by_xpath('div/div[3]').text)
                 ratings.append(rev.find_by_xpath('div[2]/img')['src'].split('/')[-1][0:1])
+                hnms.append(hotel_names[hotel_id])
+                hiurls.append(hotel_img_urls[hotel_id])
+                bids.append(biz_ids[hotel_id])
+                lnks.append(link)
                 print(rev.find_by_xpath('div[2]/img')['src'].split('/')[-1][0:1])
 
         print('Number of new titles: {}'.format(len(titles)))
@@ -131,19 +139,19 @@ def splinter_scrape_bf(city, state):
         df['review_text'] = texts
         df['review_rating'] = ratings
         df['hotel_id'] = hotel_id
-        df['hotel_name'] = hotel_names[hotel_id]
-        df['hotel_url'] = links[hotel_id]
-        df['hotel_img_url'] = hotel_img_urls[hotel_id]
+        df['hotel_name'] = hnms
+        df['hotel_url'] = lnks
+        df['hotel_img_url'] = hiurls
         df['hotel_address'] = address
         df['hotel_city'] = city
         df['hotel_state'] = state
         df['hotel_rating'] = np.mean([int(rat) for rat in ratings])
-        df['hotel_latitude'] = ''
-        df['hotel_longitude'] = ''
+        df['hotel_latitude'] = None
+        df['hotel_longitude'] = None
         df['review_count'] = len(texts)
         df['review_id'] = 0
         df['user_id'] = 0
-        df['business_id'] = biz_ids[hotel_id]
+        df['business_id'] = bids
 
         print('new entries from this page: {}'.format(len(df)))
         bigdf = bigdf.append(df.copy())
@@ -163,6 +171,8 @@ def splinter_scrape_bf(city, state):
                           'hotel_latitude', 'hotel_longitude', 'business_id', 'review_count']].copy()
 
     bigdf_hotels.drop_duplicates(subset='business_id', inplace=True)
+    bigdf_hotels['hotel_id'] = None
+    bigdf_reviews['review_id'] = None
 
     print('Number of bf reviews to add: {}'.format(len(bigdf_reviews)))
 
