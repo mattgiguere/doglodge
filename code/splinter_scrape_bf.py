@@ -6,6 +6,7 @@ Created on 2015-09-22T16:24:28
 
 from __future__ import division, print_function
 import sys
+import time
 import argparse
 
 try:
@@ -157,11 +158,16 @@ def splinter_scrape_bf(city, state):
         bigdf = bigdf.append(df.copy())
         page += 1
         if page < npages:
-            br.visit(url)
-            print('Now scraping page {} of {}'.format(page, npages))
-            button = br.find_by_id('page_'+str(page))
-            print(button)
-            button.click()
+            page_timeout = True
+            while page_timeout:
+                br.visit(url)
+                time.sleep(1)
+                print('Now scraping page {} of {}'.format(page, npages))
+                button = br.find_by_id('page_'+str(page))
+                print(button)
+                if len(button) > 0:
+                    button.click()
+                    page_timeout = False
 
     bigdf_reviews = bigdf[['hotel_id', 'review_id', 'business_id', 'user_id',
                           'username', 'review_title', 'review_text', 'review_rating']].copy()
