@@ -11,7 +11,7 @@ san_jose ca
 austin tx
 jacksonville fl
 san_francisco ca
-inpolis in
+indianapolis in
 columbus oh
 fort_worth tx
 charlotte nc
