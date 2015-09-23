@@ -69,6 +69,13 @@ def splinter_scrape_bf(city, state):
         text_summaries = []
         links = []
 
+        df = pd.DataFrame(columns=columns)
+
+        texts = []
+        titles = []
+        authors = []
+        ratings = []
+
         for lnk in archive_links:
             hotel_names.append(lnk.find_by_xpath('div[2]/h1/a').value)
             text_summaries.append(lnk.text)
@@ -76,12 +83,10 @@ def splinter_scrape_bf(city, state):
             links.append(this_link)
 
         for hotel_id, link in enumerate(links):
-            print('*'*50)
-            print('Now on {}'.format(link))
-            print('*'*50)
+            print('*'*75)
+            print('Now on {}: {}'.format(hotel_id, link))
+            print('*'*75)
             br.visit(link)
-
-            df = pd.DataFrame(columns=columns)
 
             # hotel_description = br.find_by_xpath('//*[@class="body"]').text
 
@@ -104,11 +109,6 @@ def splinter_scrape_bf(city, state):
             #Now using correct Xpath we are fetching URL of archives
             reviews = br.find_by_xpath('//*[@class="review_container"]')
 
-            texts = []
-            titles = []
-            authors = []
-            ratings = []
-
             print(reviews)
             print('')
             for rev in reviews:
@@ -118,24 +118,28 @@ def splinter_scrape_bf(city, state):
                 ratings.append(rev.find_by_xpath('div[2]/img')['src'].split('/')[-1][0:1])
                 print(rev.find_by_xpath('div[2]/img')['src'].split('/')[-1][0:1])
 
-            df['review_title'] = titles
-            df['username'] = authors
-            df['review_text'] = texts
-            df['review_rating'] = ratings
-            df['hotel_id'] = hotel_id
-            df['hotel_name'] = hotel_names[hotel_id]
-            df['hotel_url'] = link
-            df['hotel_address'] = address
-            df['hotel_city'] = city
-            df['hotel_state'] = state
-            df['hotel_rating'] = np.mean([int(rat) for rat in ratings])
-            df['hotel_latitude'] = ''
-            df['hotel_longitude'] = ''
-            df['review_count'] = len(texts)
-            df['review_id'] = 0
-            df['user_id'] = 0
+        print('Number of new titles: {}'.format(len(titles)))
+        print('Number of new ratings: {}'.format(len(ratings)))
 
-        bigdf = bigdf.append(df)
+        df['review_title'] = titles
+        df['username'] = authors
+        df['review_text'] = texts
+        df['review_rating'] = ratings
+        df['hotel_id'] = hotel_id
+        df['hotel_name'] = hotel_names[hotel_id]
+        df['hotel_url'] = link
+        df['hotel_address'] = address
+        df['hotel_city'] = city
+        df['hotel_state'] = state
+        df['hotel_rating'] = np.mean([int(rat) for rat in ratings])
+        df['hotel_latitude'] = ''
+        df['hotel_longitude'] = ''
+        df['review_count'] = len(texts)
+        df['review_id'] = 0
+        df['user_id'] = 0
+
+        print('new entries from this page: {}'.format(len(df)))
+        bigdf = bigdf.append(df.copy())
         page += 1
         if page <= npages:
             br.visit(url)
@@ -146,6 +150,8 @@ def splinter_scrape_bf(city, state):
 
     bigdf_reviews = bigdf[['hotel_id', 'review_id', 'business_id', 'user_id',
                           'username', 'review_title', 'review_text', 'review_rating']].copy()
+
+    print('Number of bf reviews to add: {}'.format(len(bigdf_reviews)))
 
     engine = cadb.connect_aws_db(write_unicode=True)
     bigdf_reviews.to_sql('bf_reviews', engine, if_exists='append', index=False)
