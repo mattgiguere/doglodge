@@ -36,9 +36,10 @@ def splinter_scrape_bf(city, state):
     br.visit(url)
 
     page = 1
-    npages = len(br.find_by_xpath('//*[@id="results_paging_controls_bottom"]/span')) - 1
+    npages = len(br.find_by_xpath('//*[@id="results_paging_controls_bottom"]/span'))
 
     columns = ['hotel_id',
+               'hotel_img_url',
                'hotel_url',
                'hotel_name',
                'hotel_address',
@@ -68,6 +69,8 @@ def splinter_scrape_bf(city, state):
         hotel_names = []
         text_summaries = []
         links = []
+        biz_ids = []
+        hotel_img_urls = []
 
         df = pd.DataFrame(columns=columns)
 
@@ -81,6 +84,8 @@ def splinter_scrape_bf(city, state):
             text_summaries.append(lnk.text)
             this_link = lnk.find_by_xpath('div/h1/a')['href']
             links.append(this_link)
+            hotel_img_urls.append(lnk.find_by_xpath('div/div[@class="photo_inner"]/a/img')['src'])
+            biz_ids.append(lnk['id'].split('_')[-1])
 
         for hotel_id, link in enumerate(links):
             print('*'*75)
@@ -127,7 +132,8 @@ def splinter_scrape_bf(city, state):
         df['review_rating'] = ratings
         df['hotel_id'] = hotel_id
         df['hotel_name'] = hotel_names[hotel_id]
-        df['hotel_url'] = link
+        df['hotel_url'] = links[hotel_id]
+        df['hotel_img_url'] = hotel_img_urls[hotel_id]
         df['hotel_address'] = address
         df['hotel_city'] = city
         df['hotel_state'] = state
@@ -137,11 +143,12 @@ def splinter_scrape_bf(city, state):
         df['review_count'] = len(texts)
         df['review_id'] = 0
         df['user_id'] = 0
+        df['business_id'] = biz_ids[hotel_id]
 
         print('new entries from this page: {}'.format(len(df)))
         bigdf = bigdf.append(df.copy())
         page += 1
-        if page <= npages:
+        if page < npages:
             br.visit(url)
             print('Now scraping page {} of {}'.format(page, npages))
             button = br.find_by_id('page_'+str(page))
@@ -151,10 +158,17 @@ def splinter_scrape_bf(city, state):
     bigdf_reviews = bigdf[['hotel_id', 'review_id', 'business_id', 'user_id',
                           'username', 'review_title', 'review_text', 'review_rating']].copy()
 
+    bigdf_hotels = bigdf[['hotel_id', 'hotel_url', 'hotel_img_url', 'hotel_name',
+                          'hotel_address', 'hotel_city', 'hotel_state', 'hotel_rating',
+                          'hotel_latitude', 'hotel_longitude', 'business_id', 'review_count']].copy()
+
+    bigdf_hotels.drop_duplicates(subset='business_id', inplace=True)
+
     print('Number of bf reviews to add: {}'.format(len(bigdf_reviews)))
 
     engine = cadb.connect_aws_db(write_unicode=True)
     bigdf_reviews.to_sql('bf_reviews', engine, if_exists='append', index=False)
+    bigdf_hotels.to_sql('bf_hotels', engine, if_exists='append', index=False)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
