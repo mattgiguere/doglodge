@@ -12,12 +12,6 @@ from __future__ import division, print_function
 import sys
 import datetime
 import argparse
-try:
-    import numpy as np
-except ImportError:
-    print('You need numpy installed')
-    sys.exit(1)
-
 import pandas as pd
 import splinter_scrape_bf as ssbf
 
