@@ -60,6 +60,7 @@ def drive_bf_us_cities(num_cities=5, run_scraper=True, starting_city=''):
 
         if run_scraper and pass_starting_city:
             ssbf.splinter_scrape_bf(row['city'], row['state'])
+    print(datetime.datetime.now())
 
 
 if __name__ == '__main__':
