@@ -24,7 +24,7 @@ memphis tn
 boston ma
 nashville tn
 baltimore md
-ok city ok
+oklahoma_city ok
 portland or
 las_vegas nv
 louisville ky
@@ -55,7 +55,7 @@ aurora co
 honolulu hi
 anaheim ca
 santa_ana ca
-corpus christi tx
+corpus_christi tx
 riverside ca
 saint_louis mo
 lexington ky
