@@ -7,6 +7,7 @@ Created on 2015-09-18T11:19:45
 from __future__ import division, print_function
 import sys
 import argparse
+from time import time
 
 try:
     import numpy as np
@@ -15,6 +16,8 @@ except ImportError:
     sys.exit(1)
 
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.neighbors import NearestCentroid
 import connect_aws_db as cadb
 
 reload(sys)
@@ -28,32 +31,76 @@ __email__ = "matthew.giguere@yale.edu"
 __status__ = " Development NOT(Prototype or Production)"
 
 
+def create_and_train_model(engine):
+    cmd = "SELECT review_rating, review_text FROM bf_reviews"
+    bfdf = pd.read_sql_query(cmd, engine)
+    bfdfl = bfdf[bfdf['review_text'].str.len() > 350].copy()
+    train_data = bfdfl['review_text'].values[:1000]
+    y_train = bfdfl['review_rating'].values[:1000]
+
+    t0 = time()
+    vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5,
+                                 stop_words='english')
+    X_train = vectorizer.fit_transform(train_data)
+    duration = time() - t0
+    print('vectorized in {:.2f} seconds.'.format(duration))
+    print(X_train.shape)
+
+    clf = NearestCentroid()
+    clf.fit(X_train, y_train)
+    return clf, vectorizer
+
+
 def retrieve_best_hotels2(city, state=''):
     """PURPOSE: To """
-    engine = cadb.connect_aws_db(write_unicode=True)
-    cmd = 'SELECT * FROM yelp_reviews'
+    city = str(city).lower()
 
+    engine = cadb.connect_aws_db(write_unicode=True)
+
+    # create and train the model to use to classify ratings:
+    clf, vectorizer = create_and_train_model(engine)
+
+    # read in the review data:
+    cmd = "SELECT * FROM yelp_reviews WHERE review_category = 'dog'"
     yelp_reviews = pd.read_sql(cmd, engine)
 
-    cmd = 'SELECT * FROM yelp_hotels'
+    # now read in the hotel data:
+    cmd = "SELECT * FROM yelp_hotels WHERE hotel_city='" + city + "'"
     yelp_hotels = pd.read_sql(cmd, engine)
+
+    # join the two DataFrames:
     yelp = pd.merge(yelp_hotels, yelp_reviews, on='business_id', how='inner')
 
-    yelp_city = yelp[yelp['hotel_city'] == city.strip()]
+    yelp_review_text = yelp['review_text'].values
+    print('Number of reviews: {}'.format(len(yelp_review_text)))
 
-    yelp_dog_review = yelp_city[yelp_city['review_text'].str.contains('dog')].copy().reset_index()
+    t0 = time()
+    X_pred = vectorizer.transform(yelp_review_text)
+    duration = time() - t0
+    print('transformed test data in {:.2f} seconds.'.format(duration))
 
-    average_dog_ratings = [np.mean(yelp_dog_review[yelp_dog_review['hotel_id'] == hotel_id]['review_rating'].values) for hotel_id in np.unique(yelp_dog_review['hotel_id'])]
+    #yelp_city = yelp[yelp['hotel_city'] == city.strip()]
 
-    unique_hotels = yelp_dog_review[yelp_dog_review['hotel_id'].isin(np.unique(yelp_dog_review['hotel_id']))].copy()
+    #yelp_dog_review = yelp_city[yelp_city['review_text'].str.contains('dog')].copy().reset_index()
 
-    unique_hotels.drop_duplicates(cols='hotel_id', inplace=True)
+    #average_dog_ratings = [np.mean(yelp_dog_review[yelp_dog_review['hotel_id'] == hotel_id]['review_rating'].values) for hotel_id in np.unique(yelp_dog_review['hotel_id'])]
 
-    unique_hotels['average_rating'] = average_dog_ratings
+    #now predict the rating based on the sentiment of the review:
+    y_pred = clf.predict(X_pred)
+    yelp['dog_rating'] = y_pred
 
-    best_dog_hotel_names = unique_hotels.sort(columns='average_rating', ascending=False)['hotel_name'].head(10).values
+    # get the unique hotels
+    unique_biz_ids = np.unique(yelp['business_id'])
 
-    best_dog_hotel_ratings = np.round(unique_hotels.sort(columns='average_rating', ascending=False)['average_rating'].head(10).values, 1)
+    unique_hotel_df = yelp[yelp['business_id'].isin(unique_biz_ids)].copy()
+
+    unique_hotel_df.drop_duplicates(cols='business_id', inplace=True)
+
+    unique_hotel_df['average_dog_rating'] = [np.mean(yelp[yelp['business_id'] == business_id]['dog_rating'].values) for business_id in unique_hotel_df['business_id'].values]
+
+    best_dog_hotel_names = unique_hotel_df.sort(columns='average_dog_rating', ascending=False)['hotel_name'].head(10).values
+
+    best_dog_hotel_ratings = np.round(unique_hotel_df.sort(columns='average_dog_rating', ascending=False)['average_dog_rating'].head(10).values, 1)
 
     string_ratings = [str(rat) for rat in best_dog_hotel_ratings]
 
