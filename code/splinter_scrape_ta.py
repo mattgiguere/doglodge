@@ -60,7 +60,7 @@ def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=Fa
         city_url = get_city(city.lower()+'_'+state.lower())
 
     print('using the following url:')
-    print(''.format(city_url))
+    print('{}'.format(city_url))
     #city_url = "http://www.tripadvisor.com/Hotels-g31310-Phoenix_Arizona-Hotels.html"
 
     #####################################################
