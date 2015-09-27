@@ -105,6 +105,13 @@ def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=Fa
     # wait a few seconds for ta to retrieve prices
     time.sleep(5)
 
+    # get the city and state info
+    loclist = br.find_by_xpath('//*[contains(@id, "BREADCRUMBS")]')
+    locstring = loclist.text.split(u'\u203a')
+    hotel_city = city = locstring[2].lower()
+
+    hotel_state = re.findall('\w+ \(([A-Z][A-Z])\)',locstring[1])[0].lower()
+
     # create a pandas dataframe that will be used for writing
     # the results to the DB:
 
@@ -221,6 +228,8 @@ def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=Fa
             df['hotel_img_url'] = img_url
             df['hotel_url'] = links
             df['business_id'] = business_id
+            df['hotel_city'] = hotel_city
+            df['hotel_state'] = hotel_state
             bigdf = bigdf.append(df)
 
         # update the page number
