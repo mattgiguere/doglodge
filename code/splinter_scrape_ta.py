@@ -9,11 +9,11 @@ import sys
 import argparse
 import re
 import time
-# try:
-#     import numpy as np
-# except ImportError:
-#     print('You need numpy installed')
-#     sys.exit(1)
+try:
+    import numpy as np
+except ImportError:
+    print('You need numpy installed')
+    sys.exit(1)
 import pandas as pd
 from splinter.browser import Browser
 import connect_aws_db as cadb
@@ -27,7 +27,20 @@ __email__ = "matthew.giguere@yale.edu"
 __status__ = " Development NOT(Prototype or Production)"
 
 
-def splinter_scrape_ta(city_url):
+def get_city(city):
+    city_urls = {'new_york_ny': 'http://www.tripadvisor.com/Hotels-g60763-New_York_City_New_York-Hotels.html',
+                 'los_angeles_ca': 'http://www.tripadvisor.com/Hotels-g32655-Los_Angeles_California-Hotels.html',
+                 'chicago_il': 'http://www.tripadvisor.com/Hotels-g35805-Chicago_Illinois-Hotels.html',
+                 'houston_tx': 'http://www.tripadvisor.com/Hotels-g56003-Houston_Texas-Hotels.html',
+                 'philadelphia_pa': 'http://www.tripadvisor.com/Hotels-g60795-Philadelphia_Pennsylvania-Hotels.html',
+                 'phoenix_az': 'http://www.tripadvisor.com/Hotels-g31310-Phoenix_Arizona-Hotels.html',
+                 'san_antonio_tx': 'http://www.tripadvisor.com/Hotels-g60956-San_Antonio_Texas-Hotels.html',
+                 'new_haven_ct': 'http://www.tripadvisor.com/Hotels-g33851-New_Haven_Connecticut-Hotels.html',
+                 }
+    return city_urls[city]
+
+
+def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=False):
     """PURPOSE: To """
     # this only needs to be done at the very beginning
     br = Browser()
@@ -35,7 +48,12 @@ def splinter_scrape_ta(city_url):
     # number of pages of hotel results to scrape
     max_pages = 7
 
-    url = "http://www.tripadvisor.com/Hotels-g31310-Phoenix_Arizona-Hotels.html"
+    if city_url == '':
+        city_url = get_city(city.lower()+'_'+state.lower())
+
+    print('using the following url:')
+    print(''.format(city_url))
+    #city_url = "http://www.tripadvisor.com/Hotels-g31310-Phoenix_Arizona-Hotels.html"
 
     #####################################################
     # do not edit below this line
@@ -48,7 +66,7 @@ def splinter_scrape_ta(city_url):
     page = 1
 
     # open the URL in a browser object:
-    br.visit(url)
+    br.visit(city_url)
 
     # find the div to enter the date range. This is needed to get pricing info:
     date_bar = br.find_by_xpath('//*[contains(@class, "meta_date_wrapper")]')
@@ -112,7 +130,8 @@ def splinter_scrape_ta(city_url):
         print('Now scraping page {} of {} of the hotel results'.format(page, max_pages))
         print('*'*75)
         # get all the review divs
-        time.sleep(5)
+        print('waiting a few seconds before scraping...')
+        time.sleep(np.random.uniform(3, 10))
         listing_div = br.find_by_xpath('//*[contains(@class, "hotels_lf_condensed")]')
         xsts1 = br.is_element_present_by_xpath('//*[contains(@class, "photo_booking")]', wait_time=1)
         xsts2 = br.is_element_present_by_xpath('//*[contains(@class, "property_details")]', wait_time=1)
@@ -140,28 +159,52 @@ def splinter_scrape_ta(city_url):
                     biz_id = biz_id[0]
                 else:
                     biz_id = None
+                print('business_id: {}'.format(biz_id))
+                business_id.append(biz_id)
+            except:
+                print('!'*80)
+                print('biz_id DOES NOT EXIST!')
+                print('!'*80)
+            try:
                 prop = listing.find_by_xpath('div/div/div/div[contains(@class, "property_details")]')
+            except:
+                print('!'*80)
+                print('prop DIV DOES NOT EXIST!')
+                print('!'*80)
+            try:
                 title = prop.find_by_xpath('div/div[@class="listing_title"]')
+                print(title.text)
+                hotel_names.append(title.text)
+            except:
+                print('!'*80)
+                print('TITLE DIV DOES NOT EXIST!')
+                print('!'*80)
+            try:
                 hotel_link = title.find_by_xpath('a')['href']
+                print(hotel_link)
+                links.append(hotel_link)
+            except:
+                print('!'*80)
+                print('hotel_link DOES NOT EXIST!')
+                print('!'*80)
+            try:
                 hotel_img = prop.find_by_xpath('div[@class="photo_booking"]/div/div/a/img')['src']
+                print('Hotel img URL: {}'.format(hotel_img))
+                img_url.append(hotel_img)
+            except:
+                print('!'*80)
+                print('hotel_img DIV DOES NOT EXIST!')
+                print('!'*80)
+            try:
                 price_text = prop.find_by_xpath('div[contains(@class, "prw_rup")]/div/div/div/div[@class="headerContents"]/div[contains(@class, "price")]').text
                 price = re.findall('(\d+)', price_text)[0]
-
-                print('business_id: {}'.format(biz_id))
-                print(title.text)
-                print(hotel_link)
-                print('Hotel img URL: {}'.format(hotel_img))
                 print('Price: ${}'.format(price))
-
-                business_id.append(biz_id)
-                hotel_names.append(title.text)
-                links.append(hotel_link)
-                img_url.append(hotel_img)
                 hotel_price.append(price)
             except:
                 print('!'*80)
-                print('ONE OF THE NEEDED DIVS DOES NOT EXIST!')
+                print('price DIV DOES NOT EXIST!')
                 print('!'*80)
+                hotel_price.append(None)
             print('*'*50)
 
         if len(hotel_names) > 0:
@@ -185,21 +228,31 @@ def splinter_scrape_ta(city_url):
             else:
                 more_pages = False
 
-    engine = cadb.connect_aws_db(write_unicode=True)
-    bigdf.to_sql('ta_hotels', engine, if_exists='append', index=False)
+    if write_to_db:
+        engine = cadb.connect_aws_db(write_unicode=True)
+        bigdf.to_sql('ta_hotels', engine, if_exists='append', index=False)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='argparse object.')
     parser.add_argument(
-        'city_url',
-        help='The url of the city to scrape.')
+        '--city_url',
+        help='The url of the city to scrape.',
+        nargs='?', default='')
     parser.add_argument(
-        'state',
+        '-c', '--city',
+        help='The url of the city to scrape.',
+        nargs='?', default='')
+    parser.add_argument(
+        '-s', '--state',
         help='This name of the state to scrape.',
-             nargs='?')
-    if len(sys.argv) > 3:
+             nargs='?', default='')
+    parser.add_argument(
+        '-w', '--write_to_db',
+        help='Set if you want to write the results to the DB.',
+             default=False, action='store_true')
+    if len(sys.argv) > 7:
         print('use the command')
         print('python splinter_scrape_bf.py city state')
         print('For example:')
@@ -208,4 +261,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    splinter_scrape_ta(args.city_url)
+    splinter_scrape_ta(city_url=args.city_url, city=args.city, state=args.state, write_to_db=args.write_to_db)
