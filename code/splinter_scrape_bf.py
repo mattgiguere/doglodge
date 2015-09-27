@@ -8,7 +8,6 @@ from __future__ import division, print_function
 import sys
 import time
 import argparse
-
 try:
     import numpy as np
 except ImportError:
