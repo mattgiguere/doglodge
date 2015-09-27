@@ -48,13 +48,10 @@ def get_city(city):
     return city_urls[city]
 
 
-def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=False):
+def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=False, max_pages=20):
     """PURPOSE: To """
     # this only needs to be done at the very beginning
     br = Browser()
-
-    # number of pages of hotel results to scrape
-    max_pages = 7
 
     if city_url == '':
         city_url = get_city(city.lower()+'_'+state.lower())
