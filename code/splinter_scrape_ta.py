@@ -7,19 +7,15 @@ Created on 2015-09-26T12:13:49
 from __future__ import division, print_function
 import sys
 import argparse
-
 try:
     import numpy as np
 except ImportError:
     print('You need numpy installed')
     sys.exit(1)
 
-try:
-    import matplotlib.pyplot as plt
-except ImportError:
-    print('You need to install matplotlib')
-
 import pandas as pd
+from splinter.browser import Browser
+import connect_aws_db as cadb
 
 __author__ = "Matt Giguere (github: @mattgiguere)"
 __license__ = "MIT"
