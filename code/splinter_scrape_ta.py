@@ -191,6 +191,7 @@ def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=Fa
                 print('!'*80)
                 print('TITLE DIV DOES NOT EXIST!')
                 print('!'*80)
+                hotel_names.append(None)
             try:
                 hotel_link = title.find_by_xpath('a')['href']
                 print(hotel_link)
@@ -199,6 +200,7 @@ def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=Fa
                 print('!'*80)
                 print('hotel_link DOES NOT EXIST!')
                 print('!'*80)
+                links.append(None)
             try:
                 hotel_img = prop.find_by_xpath('div[@class="photo_booking"]/div/div/a/img')['src']
                 print('Hotel img URL: {}'.format(hotel_img))
@@ -207,6 +209,7 @@ def splinter_scrape_ta(city_url='', city='new_haven', state='ct', write_to_db=Fa
                 print('!'*80)
                 print('hotel_img DIV DOES NOT EXIST!')
                 print('!'*80)
+                img_url.append(None)
             try:
                 price_text = prop.find_by_xpath('div[contains(@class, "prw_rup")]/div/div/div/div[@class="headerContents"]/div[contains(@class, "price")]').text
                 price = re.findall('(\d+)', price_text)[0]
