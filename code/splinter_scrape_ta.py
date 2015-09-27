@@ -35,6 +35,14 @@ def get_city(city):
                  'philadelphia_pa': 'http://www.tripadvisor.com/Hotels-g60795-Philadelphia_Pennsylvania-Hotels.html',
                  'phoenix_az': 'http://www.tripadvisor.com/Hotels-g31310-Phoenix_Arizona-Hotels.html',
                  'san_antonio_tx': 'http://www.tripadvisor.com/Hotels-g60956-San_Antonio_Texas-Hotels.html',
+                 'san_diego_ca': 'http://www.tripadvisor.com/Hotels-g60750-San_Diego_California-Hotels.html',
+                 'dallas_tx': 'http://www.tripadvisor.com/Hotels-g55711-Dallas_Texas-Hotels.html',
+                 'san_jose_ca': 'http://www.tripadvisor.com/Hotels-g33020-San_Jose_California-Hotels.html',
+                 'austin_tx': 'http://www.tripadvisor.com/Hotels-g30196-Austin_Texas-Hotels.html',
+                 'jacksonville_fl': 'http://www.tripadvisor.com/Hotels-g60805-Jacksonville_Florida-Hotels.html',
+                 'san_francisco_ca': 'http://www.tripadvisor.com/Hotels-g60713-San_Francisco_California-Hotels.html',
+                 'indianapolis_in': 'http://www.tripadvisor.com/Hotels-g37209-Indianapolis_Indiana-Hotels.html',
+                 'columbus_oh': 'http://www.tripadvisor.com/Hotels-g50226-Columbus_Ohio-Hotels.html',
                  'new_haven_ct': 'http://www.tripadvisor.com/Hotels-g33851-New_Haven_Connecticut-Hotels.html',
                  }
     return city_urls[city]
