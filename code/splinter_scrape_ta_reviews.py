@@ -32,11 +32,11 @@ def get_hotel_urls(city, state, engine):
 
     # manipulate the city string into the proper form
     citystr = (' ').join(city.lower().split('_'))
-    cmd = "SELECT business_id, hotel_url FROM ta_hotels WHERE "
+    cmd = "SELECT hotel_id, business_id, hotel_url FROM ta_hotels WHERE "
     cmd += "hotel_city='"+citystr+"' AND "
     cmd += "hotel_state='"+state.lower()+"'"
     result = engine.execute(cmd)
-    return [(row['business_id'], row['hotel_url']) for row in result]
+    return [(row['hotel_id'], row['business_id'], row['hotel_url']) for row in result]
 
 
 def return_results(url, page, br):
@@ -136,14 +136,17 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
     blinks = get_hotel_urls(city, state, engine)
 
     br = Browser()
-    for biz_id, link in blinks:
-        scrape_hotel(link, br, engine)
+    for hotel_id, biz_id, link in blinks:
+        bigdf = scrape_hotel(link, br, engine)
+        bigdf['hotel_id'] = hotel_id
+        bigdf['business_id'] = biz_id
+        if write_to_db:
+            bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
 
 
 def scrape_hotel(url, br, engine):
     columns = ['review_id',
                'hotel_id',
-               'hotel_name',
                'business_id',
                'biz_review_id',
                'biz_member_id',
