@@ -223,6 +223,12 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
             print('*'*50)
 
         if len(hotel_names) > 0:
+            print('len of hotel_names: {}'.format(len(hotel_names)))
+            print('len of hotel_price: {}'.format(len(hotel_price)))
+            print('len of img_url: {}'.format(len(img_url)))
+            print('len of business_id: {}'.format(len(business_id)))
+            print('len of hotel_city: {}'.format(len(hotel_city)))
+            print('len of hotel_state: {}'.format(len(hotel_state)))
             df['hotel_name'] = hotel_names
             df['hotel_price'] = hotel_price
             df['hotel_img_url'] = img_url
