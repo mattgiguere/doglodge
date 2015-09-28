@@ -27,8 +27,68 @@ __email__ = "matthew.giguere@yale.edu"
 __status__ = " Development NOT(Prototype or Production)"
 
 
-def splinter_scrape_ta_reviews(arg1, arg2):
+def get_hotel_urls(city, state):
+    """Retrieve the hotels for the given city and state"""
+
+
+def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
     """PURPOSE: To """
+
+    links = get_hotel_urls(city, state)
+    usernames = []
+    memberids = []
+    locations = []
+    titles = []
+    ratings = []
+    dates = []
+    reviews = []
+    review_ids = []
+
+    columns = ['review_id',
+               'hotel_id',
+               'hotel_name',
+               'business_id',
+               'biz_review_id',
+               'biz_member_id',
+               'username',
+               'review_title',
+               'review_rating',
+               'review_text',
+               'review_date']
+
+    bigdf = pd.DataFrame(columns=columns)
+
+    url = links[idx]
+    hotel_name = hotel_names[idx]
+
+    more_reviews = True
+    page = 1
+    while more_reviews:
+        #print('*'*50)
+        print('*'*50)
+        print('Now on page {}'.format(page))
+        #print('*'*50)
+        
+        df = pd.DataFrame(columns=columns)
+
+        ret_dict = return_results(url, page)
+        print(ret_dict['locs'])
+        print(ret_dict['ttls'])
+        df['biz_review_id'] = ret_dict['revids']
+        df['biz_member_id'] = ret_dict['mmbrids']
+        df['username'] = ret_dict['usrnms']
+        df['review_title'] = ret_dict['ttls']
+        df['review_rating'] = ret_dict['rtngs']
+        df['review_date'] = ret_dict['dts']
+        df['review_text'] = ret_dict['rvws']
+        df['hotel_name'] = hotel_name
+        url = ret_dict['url']
+        more_reviews = ret_dict['more_reviews']
+        page = ret_dict['page']
+        print('successfully completed page {}'.format(page))
+        bigdf = bigdf.append(df)
+        more_reviews = False
+
 
 
 if __name__ == '__main__':
