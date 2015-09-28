@@ -234,5 +234,5 @@ if __name__ == '__main__':
     splinter_scrape_ta_reviews(city=args.city,
                                state=args.state,
                                write_to_db=args.write_to_db,
-                               start_num=args.start_num,
-                               end_num=args.end_num)
+                               start_num=int(args.start_num),
+                               end_num=int(args.end_num))
