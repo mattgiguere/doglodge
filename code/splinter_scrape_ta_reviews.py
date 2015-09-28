@@ -27,14 +27,23 @@ __email__ = "matthew.giguere@yale.edu"
 __status__ = " Development NOT(Prototype or Production)"
 
 
-def get_hotel_urls(city, state):
+def get_hotel_urls(city, state, engine):
     """Retrieve the hotels for the given city and state"""
+
+    # manipulate the city string into the proper form
+    citystr = (' ').join(city.lower().split('_'))
+    cmd = "SELECT hotel_url FROM ta_hotels WHERE "
+    cmd += "hotel_city='"+citystr+"' AND "
+    cmd += "hotel_state='"+state.lower()+"'"
+    result = engine.execute(cmd)
+    return [row['hotel_url'] for row in result]
 
 
 def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
     """PURPOSE: To """
+    engine = cadb.connect_aws_db(write_unicode=True)
 
-    links = get_hotel_urls(city, state)
+    links = get_hotel_urls(city, state, engine)
     usernames = []
     memberids = []
     locations = []
