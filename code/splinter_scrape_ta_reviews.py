@@ -32,15 +32,18 @@ def get_hotel_urls(city, state, engine):
 
     # manipulate the city string into the proper form
     citystr = (' ').join(city.lower().split('_'))
-    cmd = "SELECT hotel_url FROM ta_hotels WHERE "
+    cmd = "SELECT business_id, hotel_url FROM ta_hotels WHERE "
     cmd += "hotel_city='"+citystr+"' AND "
     cmd += "hotel_state='"+state.lower()+"'"
     result = engine.execute(cmd)
-    return [row['hotel_url'] for row in result]
+    return [(row['business_id'], row['hotel_url']) for row in result]
 
 
 def return_results(url, page, br):
     br.visit(url)
+    sleep_amount = np.random.uniform(8, 20)
+    print('sleeping for {} seconds before continuing.'.format(sleep_amount))
+    time.sleep(sleep_amount)
     full_reviews = br.find_by_xpath('//div[contains(@class, "reviewSelector")]')
 
     page_usernames = []
@@ -54,10 +57,15 @@ def return_results(url, page, br):
 
     for fullrev in full_reviews:
         # user name:
-        member_info = fullrev.find_by_xpath('div/div[contains(@class, "col1of2")]/div[contains(@class, "member_info")]')
-        member_str = member_info.find_by_xpath('div[contains(@class, "memberOverlayLink")]')['id']
-        member_id = re.findall('UID_(.*)-', member_str)[0]
-        usrnm = member_info.find_by_xpath('div/div[contains(@class, "username mo")]')
+        try:
+            member_info = fullrev.find_by_xpath('div/div[contains(@class, "col1of2")]/div[contains(@class, "member_info")]')
+            member_str = member_info.find_by_xpath('div[contains(@class, "memberOverlayLink")]')['id']
+            member_id = re.findall('UID_(.*)-', member_str)[0]
+            usrnm = member_info.find_by_xpath('div/div[contains(@class, "username mo")]')
+        except:
+            print('member_info does not exist')
+            member_id = ''
+            usrnm = ''
         review = fullrev.find_by_xpath('div/div[@class="col2of2"]/div[@class="innerBubble"]')[0]
         title = review.find_by_xpath('div/div[contains(@class, "quote")]').text.strip()[1:-1]
         rating = review.find_by_xpath('div/div[contains(@class, "rating")]/span/img')['alt'].split(' ')[0]
@@ -77,7 +85,7 @@ def return_results(url, page, br):
             location = ''
             print('Location: ')
 
-        print('full review_id: {}'.format(fullrev['id']))
+        #print('full review_id: {}'.format(fullrev['id']))
         try:
             rev_id = re.search('review_(\d+)$', fullrev['id']).group(1)
         except AttributeError:
@@ -125,10 +133,10 @@ def return_results(url, page, br):
 def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
-    links = get_hotel_urls(city, state, engine)
+    blinks = get_hotel_urls(city, state, engine)
 
     br = Browser()
-    for link in links:
+    for biz_id, link in blinks:
         scrape_hotel(link, br, engine)
 
 
@@ -150,7 +158,6 @@ def scrape_hotel(url, br, engine):
     more_reviews = True
     page = 1
     while more_reviews:
-        #print('*'*50)
         print('*'*50)
         print('Now on page {}'.format(page))
         #print('*'*50)
@@ -158,8 +165,8 @@ def scrape_hotel(url, br, engine):
         df = pd.DataFrame(columns=columns)
 
         ret_dict = return_results(url, page, br)
-        print(ret_dict['locs'])
-        print(ret_dict['ttls'])
+        #print(ret_dict['locs'])
+        #print(ret_dict['ttls'])
         df['biz_review_id'] = ret_dict['revids']
         df['biz_member_id'] = ret_dict['mmbrids']
         df['username'] = ret_dict['usrnms']
@@ -172,7 +179,8 @@ def scrape_hotel(url, br, engine):
         page = ret_dict['page']
         print('successfully completed page {}'.format(page))
         bigdf = bigdf.append(df)
-        more_reviews = False
+        # more_reviews = False
+    return bigdf
 
 
 if __name__ == '__main__':
