@@ -144,6 +144,8 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
     if start_num != 0:
         blinks = blinks[start_num:]
     if end_num != -1:
+        if len(blinks) < end_num:
+            end_num = len(blinks)
         blinks = blinks[:end_num]
 
     br = Browser()
