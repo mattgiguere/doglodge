@@ -148,7 +148,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
         xsts1 = br.is_element_present_by_xpath('//*[contains(@class, "photo_booking")]', wait_time=1)
         xsts2 = br.is_element_present_by_xpath('//*[contains(@class, "property_details")]', wait_time=1)
         xsts3 = br.is_element_present_by_xpath('//*[contains(@class, "prw_rup")]/div/div/div/div[@class="headerContents"]/div[contains(@class, "price")]', wait_time=1)
-        while len(listing_div) < 3 or not xsts1 or not xsts2 or not xsts3:
+        while len(listing_div) < 1 or not xsts1 or not xsts2 or not xsts3:
             print('now waiting for DOIs to return')
             time.sleep(5)
             listing_div = br.find_by_xpath('//*[contains(@class, "hotels_lf_condensed")]')
