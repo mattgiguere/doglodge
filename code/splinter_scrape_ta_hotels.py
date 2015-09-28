@@ -177,6 +177,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
                 print('!'*80)
                 print('biz_id DOES NOT EXIST!')
                 print('!'*80)
+                business_id.append(None)
             try:
                 prop = listing.find_by_xpath('div/div/div/div[contains(@class, "property_details")]')
             except:
