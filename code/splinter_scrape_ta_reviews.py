@@ -145,6 +145,7 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
         blinks = blinks[start_num:]
     if end_num != -1:
         if len(blinks) < end_num:
+            print('end_num exceeded number of hotels. resetting to max.')
             end_num = len(blinks)
         blinks = blinks[:end_num]
 
@@ -231,7 +232,7 @@ if __name__ == '__main__':
         'For example, if there are ten hotels for the city, ' +
         'and you only want to add reviews for hotels 0 through 4, set ' +
         'end_num to 5.',
-             nargs='?', default=0)
+             nargs='?', default=-1)
     parser.add_argument(
         '-w', '--write_to_db',
         help='Set if you want to write the results to the DB.',
