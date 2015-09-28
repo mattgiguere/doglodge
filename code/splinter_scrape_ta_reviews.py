@@ -39,20 +39,100 @@ def get_hotel_urls(city, state, engine):
     return [row['hotel_url'] for row in result]
 
 
+def return_results(url, page, br):
+    br.visit(url)
+    full_reviews = br.find_by_xpath('//div[contains(@class, "reviewSelector")]')
+
+    page_usernames = []
+    page_memberids = []
+    page_locations = []
+    page_titles = []
+    page_ratings = []
+    page_dates = []
+    page_reviews = []
+    page_review_ids = []
+
+    for fullrev in full_reviews:
+        # user name:
+        member_info = fullrev.find_by_xpath('div/div[contains(@class, "col1of2")]/div[contains(@class, "member_info")]')
+        member_str = member_info.find_by_xpath('div[contains(@class, "memberOverlayLink")]')['id']
+        member_id = re.findall('UID_(.*)-', member_str)[0]
+        usrnm = member_info.find_by_xpath('div/div[contains(@class, "username mo")]')
+        review = fullrev.find_by_xpath('div/div[@class="col2of2"]/div[@class="innerBubble"]')[0]
+        title = review.find_by_xpath('div/div[contains(@class, "quote")]').text.strip()[1:-1]
+        rating = review.find_by_xpath('div/div[contains(@class, "rating")]/span/img')['alt'].split(' ')[0]
+        date = review.find_by_xpath('div/div[contains(@class, "rating")]/span[contains(@class, "ratingDate")]')['title']
+        rev = review.find_by_xpath('div/div[contains(@class, "entry")]').text.strip().replace("\n", "")
+        if len(usrnm) > 0:
+            username = str(usrnm[0].text).strip()
+            print('Username: {}'.format(username))
+        else:
+            print('Username: A Trip Advisor Member')
+
+        locationel = member_info.find_by_xpath('div[contains(@class, "location")]')
+        if len(locationel) > 0:
+            location = str(locationel[0].text).strip()
+            print('Location: {}'.format(location))
+        else:
+            location = ''
+            print('Location: ')
+
+        print('full review_id: {}'.format(fullrev['id']))
+        try:
+            rev_id = re.search('review_(\d+)$', fullrev['id']).group(1)
+        except AttributeError:
+            rev_id = ''
+
+#         print('review_id: {}'.format(rev_id))
+#         print('Title: {}'.format(title))
+#         print('Rating: {}'.format(rating))
+#         print('Date: {}'.format(date))
+#         print('Review:')
+#        print(rev)
+#        print('*'*50)
+
+        page_usernames.append(username)
+        page_memberids.append(member_id)
+        page_locations.append(location)
+        page_titles.append(title)
+        page_ratings.append(rating)
+        page_dates.append(date)
+        page_reviews.append(rev)
+        page_review_ids.append(rev_id)
+
+    if len(br.find_by_xpath('//a[contains(@class, "next")]')) > 0:
+        url = br.find_by_xpath('//a[contains(@class, "next")]')['href']
+        more_reviews = True
+        page += 1
+#        print('url and page updated.')
+    else:
+        more_reviews = False
+
+    ret_dict = {'usrnms': page_usernames,
+                'mmbrids': page_memberids,
+                'locs': page_locations,
+                'ttls': page_titles,
+                'rtngs': page_ratings,
+                'dts': page_dates,
+                'rvws': page_reviews,
+                'revids': page_review_ids,
+                'url': url,
+                'more_reviews': more_reviews,
+                'page': page}
+    return ret_dict
+
+
 def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
-
     links = get_hotel_urls(city, state, engine)
-    usernames = []
-    memberids = []
-    locations = []
-    titles = []
-    ratings = []
-    dates = []
-    reviews = []
-    review_ids = []
 
+    br = Browser()
+    for link in links:
+        scrape_hotel(link, br, engine)
+
+
+def scrape_hotel(url, br, engine):
     columns = ['review_id',
                'hotel_id',
                'hotel_name',
@@ -67,9 +147,6 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
 
     bigdf = pd.DataFrame(columns=columns)
 
-    url = links[idx]
-    hotel_name = hotel_names[idx]
-
     more_reviews = True
     page = 1
     while more_reviews:
@@ -77,10 +154,10 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
         print('*'*50)
         print('Now on page {}'.format(page))
         #print('*'*50)
-        
+
         df = pd.DataFrame(columns=columns)
 
-        ret_dict = return_results(url, page)
+        ret_dict = return_results(url, page, br)
         print(ret_dict['locs'])
         print(ret_dict['ttls'])
         df['biz_review_id'] = ret_dict['revids']
@@ -90,14 +167,12 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
         df['review_rating'] = ret_dict['rtngs']
         df['review_date'] = ret_dict['dts']
         df['review_text'] = ret_dict['rvws']
-        df['hotel_name'] = hotel_name
         url = ret_dict['url']
         more_reviews = ret_dict['more_reviews']
         page = ret_dict['page']
         print('successfully completed page {}'.format(page))
         bigdf = bigdf.append(df)
         more_reviews = False
-
 
 
 if __name__ == '__main__':
