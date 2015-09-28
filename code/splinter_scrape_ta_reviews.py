@@ -130,10 +130,16 @@ def return_results(url, page, br):
     return ret_dict
 
 
-def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
+def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0, end_num=-1):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
     blinks = get_hotel_urls(city, state, engine)
+
+    # only do the specified hotel range
+    if start_num != 0:
+        blinks = blinks[start_num:]
+    if end_num != -1:
+        blinks = blinks[:end_num]
 
     br = Browser()
     for hotel_id, biz_id, link in blinks:
@@ -141,7 +147,11 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False):
         bigdf['hotel_id'] = hotel_id
         bigdf['business_id'] = biz_id
         if write_to_db:
-            bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+            try:
+                bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+            except:
+                engine = cadb.connect_aws_db(write_unicode=True)
+                bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
 
 
 def scrape_hotel(url, br, engine):
@@ -202,10 +212,17 @@ if __name__ == '__main__':
         help='This name of the state to scrape.',
              nargs='?', default='')
     parser.add_argument(
+        '--start_num',
+        help='The starting number within the list of hotels for a city ' +
+        'to start with. For example, if there are ten hotels for the city, ' +
+        'and you only want to add reviews for hotels 5 through 10, set ' +
+        'start_num to 5.',
+             nargs='?', default=0)
+    parser.add_argument(
         '-w', '--write_to_db',
         help='Set if you want to write the results to the DB.',
              default=False, action='store_true')
-    if len(sys.argv) > 7:
+    if len(sys.argv) > 11:
         print('use the command')
         print('python splinter_scrape_bf.py city state')
         print('For example:')
@@ -214,4 +231,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    splinter_scrape_ta_reviews(city=args.city, state=args.state, write_to_db=args.write_to_db)
+    splinter_scrape_ta_reviews(city=args.city,
+                               state=args.state,
+                               write_to_db=args.write_to_db,
+                               start_num=args.start_num,
+                               end_num=args.end_num)
