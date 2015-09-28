@@ -18,13 +18,17 @@ import pandas as pd
 from splinter.browser import Browser
 import connect_aws_db as cadb
 
-
 __author__ = "Matt Giguere (github: @mattgiguere)"
 __license__ = "MIT"
 __version__ = '0.0.1'
 __maintainer__ = "Matt Giguere"
 __email__ = "matthew.giguere@yale.edu"
 __status__ = " Development NOT(Prototype or Production)"
+
+
+# change default encoding to handle utf characters
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 def get_hotel_urls(city, state, engine):
