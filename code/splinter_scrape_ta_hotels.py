@@ -107,7 +107,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
     locstring = loclist.text.split(u'\u203a')
     hotel_city = city = locstring[2].lower()
 
-    hotel_state = re.findall('\w+ \(([A-Z][A-Z])\)',locstring[1])[0].lower()
+    hotel_state = re.findall('\w+ \(([A-Z][A-Z])\)', locstring[1])[0].lower()
 
     # create a pandas dataframe that will be used for writing
     # the results to the DB:
@@ -143,7 +143,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
         print('*'*75)
         # get all the review divs
         print('waiting a few seconds before scraping...')
-        time.sleep(np.random.uniform(3, 10))
+        time.sleep(np.random.uniform(8, 20))
         listing_div = br.find_by_xpath('//*[contains(@class, "hotels_lf_condensed")]')
         xsts1 = br.is_element_present_by_xpath('//*[contains(@class, "photo_booking")]', wait_time=1)
         xsts2 = br.is_element_present_by_xpath('//*[contains(@class, "property_details")]', wait_time=1)
