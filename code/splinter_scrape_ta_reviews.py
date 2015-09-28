@@ -75,6 +75,7 @@ def return_results(url, page, br):
             username = str(usrnm[0].text).strip()
             print('Username: {}'.format(username))
         else:
+            username = ''
             print('Username: A Trip Advisor Member')
 
         locationel = member_info.find_by_xpath('div[contains(@class, "location")]')
