@@ -219,6 +219,13 @@ if __name__ == '__main__':
         'start_num to 5.',
              nargs='?', default=0)
     parser.add_argument(
+        '--end_num',
+        help='The ending number within the list of hotels for a city. ' +
+        'For example, if there are ten hotels for the city, ' +
+        'and you only want to add reviews for hotels 0 through 4, set ' +
+        'end_num to 5.',
+             nargs='?', default=0)
+    parser.add_argument(
         '-w', '--write_to_db',
         help='Set if you want to write the results to the DB.',
              default=False, action='store_true')
