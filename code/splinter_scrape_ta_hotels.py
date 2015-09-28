@@ -44,6 +44,10 @@ def get_city(city):
                  'indianapolis_in': 'http://www.tripadvisor.com/Hotels-g37209-Indianapolis_Indiana-Hotels.html',
                  'columbus_oh': 'http://www.tripadvisor.com/Hotels-g50226-Columbus_Ohio-Hotels.html',
                  'new_haven_ct': 'http://www.tripadvisor.com/Hotels-g33851-New_Haven_Connecticut-Hotels.html',
+                 'palo_alto_ca': 'http://www.tripadvisor.com/Hotels-g32849-Palo_Alto_California-Hotels.html',
+                 'mountain_view_ca': 'http://www.tripadvisor.com/Hotels-g32761-Mountain_View_California-Hotels.html',
+                 'sunnyvale_ca': 'http://www.tripadvisor.com/Hotels-g33146-Sunnyvale_California-Hotels.html',
+                 'santa_clara_ca': 'http://www.tripadvisor.com/Hotels-g33046-Santa_Clara_California-Hotels.html',
                  }
     return city_urls[city]
 
