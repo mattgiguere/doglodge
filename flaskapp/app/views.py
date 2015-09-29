@@ -9,10 +9,6 @@ import retrieve_best_hotels2 as rbh
 
 @app.route('/index')
 def index():
-    #user = '' # fake user
-    #return render_template("index.html",
-    #    title = 'Home',
-    #    user = user)
     return render_template("index.html")
 
 
