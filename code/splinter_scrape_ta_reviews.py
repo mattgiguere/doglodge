@@ -104,6 +104,16 @@ def return_results(url, page, br):
 #        print(rev)
 #        print('*'*50)
 
+        # remove 4-byte unicode text:
+        try:
+            highpoints = re.compile(u'[\U00010000-\U0010ffff]')
+        except re.error:
+            # UCS-2 build
+            highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
+        username = highpoints.sub(u'', username)
+        title = highpoints.sub(u'', title)
+        rev = highpoints.sub(u'', rev)
+
         page_usernames.append(username)
         page_memberids.append(member_id)
         page_locations.append(location)
