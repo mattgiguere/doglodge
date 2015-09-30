@@ -28,6 +28,19 @@ body {
     border-radius: 10px;
 }
 
+/* navbar */
+.navbar-default {
+    background-color: #555;
+    border-color: #000;
+}
+.icon-bar {
+    color: #555;
+}
+
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+color: #000;  /*Sets the text hover color on navbar*/
+}
+
 .text-vertical-center {
     display: table-cell;
     text-align: center;
