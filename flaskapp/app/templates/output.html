@@ -51,6 +51,8 @@
             <li><a href="#contact">Deck</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://twitter.com/magickair" target="new">Twitter</a></li>
+            <li><a href="https://www.linkedin.com/in/mjgiguere" target="new">LinkedIn</a></li>
             <li><a href="https://github.com/mattgiguere/doglodge" target="new">Github</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -60,10 +62,12 @@
     <!-- Header -->
     <header id="top" class="header">
         <div class="text-vertical-center">
-        <h2>Best Places to Stay With Your Dog in {{destination}} </h2>
+        <h2 id="dog-dest-hdr">Best Places to Stay With Your Dog in {{destination}} </h2>
+
+        <div class="row">&nbsp;</div>
 
         <div class="row">
-            <div class="col-md-4 col-sm-6 col-md-offset-2">
+            <div class="col-md-5 col-sm-6 col-md-offset-1">
             <!-- <h2> Future Map Will Go Here! </h2> -->
             <img id='mapimage' src= {{ url_for('static', filename = 'img/Phoenix.png') }} width="100%">
             <script>
@@ -79,15 +83,32 @@
             </script>
             </div>
             
-            <div class="col-md-4 col-sm-6 hotel-div">
-                <ul>
-                {% for rating, name in ratings %}
-                <li class='dog-hotels list-unstyled'>{{rating}} - {{name}}</li>
-                {% endfor %}
-                </ul>
+            <div class="col-lg-5 col-md-5 col-sm-6 hotel-div">
+                <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Rating</th>
+                        <th>Hotel Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rating, name in ratings %}
+                    <tr>
+                        <td>
+                            {{rating}}
+                        </td>
+                        <td>
+                            {{name}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
             </div>
 
         </div>
+
+
                 <!--   
                 <div class="container">
                			<div class="starter-template">
