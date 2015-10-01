@@ -160,21 +160,30 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
         blinks = blinks[:end_num]
 
     br = Browser()
+
+    cmd = 'select distinct r.business_id from '
+    cmd += 'ta_reviews r inner join ta_hotels h on r.business_id = '
+    cmd += 'h.business_id where h.hotel_city = "'
+    cmd += (' ').join(city.split('_'))+'" '
+    donebids = [int(bid[0]) for bid in pd.read_sql_query(cmd, engine).values]
+
     for hotel_id, biz_id, link in blinks:
-        bigdf = scrape_hotel(link, br, engine)
-        bigdf['hotel_id'] = hotel_id
-        bigdf['business_id'] = biz_id
-        if write_to_db:
-            try:
-                bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
-            except:
-                engine = cadb.connect_aws_db(write_unicode=True)
-                cmd = 'select biz_review_id from ta_reviews where hotel_city = '
-                cmd += '"'+(' ').join(city.split('_'))+'"'
-                xstng_revs = pd.read_sql_query(cmd, engine).values
-                if len(xstng_revs) > 0:
-                    bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
-                bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+        # check to see if there are already reviews for that hotel
+        if biz_id not in donebids:
+            bigdf = scrape_hotel(link, br, engine)
+            bigdf['hotel_id'] = hotel_id
+            bigdf['business_id'] = biz_id
+            if write_to_db:
+                try:
+                    bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+                except:
+                    engine = cadb.connect_aws_db(write_unicode=True)
+                    cmd = 'select biz_review_id from ta_reviews where hotel_city = '
+                    cmd += '"'+(' ').join(city.split('_'))+'"'
+                    xstng_revs = pd.read_sql_query(cmd, engine).values
+                    if len(xstng_revs) > 0:
+                        bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
+                    bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
 
 
 def scrape_hotel(url, br, engine):
