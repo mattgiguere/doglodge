@@ -169,6 +169,11 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
                 bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
             except:
                 engine = cadb.connect_aws_db(write_unicode=True)
+                cmd = 'select biz_review_id from ta_reviews where hotel_city = '
+                cmd += '"'+(' ').join(city.split('_'))+'"'
+                xstng_revs = pd.read_sql_query(cmd, engine).values
+                if len(xstng_revs) > 0:
+                    bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
                 bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
 
 
