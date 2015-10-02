@@ -51,15 +51,7 @@ def create_and_train_model(engine):
     return clf, vectorizer
 
 
-def retrieve_best_hotels2(city, state=''):
-    """PURPOSE: To """
-    city = str(city).lower()
-
-    engine = cadb.connect_aws_db(write_unicode=True)
-
-    # create and train the model to use to classify ratings:
-    clf, vectorizer = create_and_train_model(engine)
-
+def get_yelp_data(city, engine):
     # read in the review data:
     cmd = "SELECT * FROM yelp_reviews WHERE review_category = 'dog'"
     yelp_reviews = pd.read_sql(cmd, engine)
@@ -70,6 +62,19 @@ def retrieve_best_hotels2(city, state=''):
 
     # join the two DataFrames:
     yelp = pd.merge(yelp_hotels, yelp_reviews, on='business_id', how='inner')
+    return yelp
+
+
+def retrieve_best_hotels2(city, state=''):
+    """PURPOSE: To """
+    city = str(city).lower()
+
+    engine = cadb.connect_aws_db(write_unicode=True)
+
+    # create and train the model to use to classify ratings:
+    clf, vectorizer = create_and_train_model(engine)
+
+    yelp = get_yelp_data(city, engine)
 
     yelp_review_text = yelp['review_text'].values
     print('Number of reviews: {}'.format(len(yelp_review_text)))
