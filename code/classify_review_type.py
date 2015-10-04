@@ -46,8 +46,9 @@ def get_ta_reviews(engine):
 
 def update_table_rev_cat(df, engine):
     brids = df[df['review_category'] == 'dog']['biz_review_id'].values
+    sbrids = [str(brid) for brid in brids]
     cmd = 'UPDATE ta_reviews SET review_category = "dog" '
-    cmd += 'WHERE biz_review_id in ('+(',').join(brids)+')'
+    cmd += 'WHERE biz_review_id in ('+(',').join(sbrids)+')'
 
     conn = engine.connect()
     conn.execute(cmd)
