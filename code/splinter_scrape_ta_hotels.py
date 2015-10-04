@@ -75,6 +75,16 @@ def remove_duplicate_hotels(bigdf, city, engine):
     return bigdf
 
 
+def remove_ad_hotels(bigdf):
+    """
+    PURPOSE:
+    Delete hotels without a business_id (i.e. the advertisement
+    hotels at the top of some pages)
+    """
+    bigdf = bigdf[bigdf['business_id'] != None].copy()
+    return bigdf
+
+
 def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_to_db=False, max_pages=20):
     """PURPOSE: To """
     # this only needs to be done at the very beginning
@@ -282,6 +292,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
     if write_to_db:
         engine = cadb.connect_aws_db(write_unicode=True)
         remove_duplicate_hotels(bigdf, city, engine)
+        bigdf = remove_ad_hotels(bigdf)
         bigdf.to_sql('ta_hotels', engine, if_exists='append', index=False)
 
 
