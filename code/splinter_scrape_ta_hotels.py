@@ -281,7 +281,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
 
     if write_to_db:
         engine = cadb.connect_aws_db(write_unicode=True)
-        remove_duplicate_hotels(bigdf, engine)
+        remove_duplicate_hotels(bigdf, city, engine)
         bigdf.to_sql('ta_hotels', engine, if_exists='append', index=False)
 
 
