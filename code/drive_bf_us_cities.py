@@ -75,7 +75,7 @@ if __name__ == '__main__':
         '-n', '--num_cities',
         help='The number of cities to add to the db. ' +
              'The default is the five most populous cities.',
-             nargs='?', default=5)
+             nargs='?', default='all')
     parser.add_argument(
         '-r', '--run_scraper',
         help='If run_scraper is set, this code runs splinter_scrape_bf. ' +
