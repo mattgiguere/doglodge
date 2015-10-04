@@ -241,6 +241,7 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
             bigdf = scrape_hotel(link, br, engine)
             bigdf['hotel_id'] = hotel_id
             bigdf['business_id'] = biz_id
+            bigdf['biz_review_id'] = np.int64(bigdf['biz_review_id'].values)
             bigdf = remove_duplicates(bigdf, city, engine)
             if write_to_db:
                 try:
