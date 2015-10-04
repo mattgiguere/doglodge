@@ -27,8 +27,8 @@ __status__ = " Development NOT(Prototype or Production)"
 
 
 # change default encoding to handle utf characters
-reload(sys)
-sys.setdefaultencoding('utf8')
+#reload(sys)
+#sys.setdefaultencoding('utf8')
 
 
 def get_hotel_urls(city, state, engine):
@@ -145,6 +145,15 @@ def return_results(url, page, br):
     return ret_dict
 
 
+def get_done_business_ids(city, engine):
+    cmd = 'select distinct r.business_id from '
+    cmd += 'ta_reviews r inner join ta_hotels h on r.business_id = '
+    cmd += 'h.business_id where h.hotel_city = "'
+    cmd += (' ').join(city.split('_'))+'" '
+    donebids = [int(bid[0]) for bid in pd.read_sql_query(cmd, engine).values]
+    return donebids
+
+
 def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0, end_num=-1):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
@@ -161,15 +170,11 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
 
     br = Browser()
 
-    cmd = 'select distinct r.business_id from '
-    cmd += 'ta_reviews r inner join ta_hotels h on r.business_id = '
-    cmd += 'h.business_id where h.hotel_city = "'
-    cmd += (' ').join(city.split('_'))+'" '
-    donebids = [int(bid[0]) for bid in pd.read_sql_query(cmd, engine).values]
+    donebids = get_done_business_ids(city, engine)
 
     for hotel_id, biz_id, link in blinks:
         # check to see if there are already reviews for that hotel
-        if biz_id not in donebids:
+        if int(biz_id) not in donebids:
             bigdf = scrape_hotel(link, br, engine)
             bigdf['hotel_id'] = hotel_id
             bigdf['business_id'] = biz_id
@@ -182,10 +187,12 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
                     cmd += 'ta_hotels h on r.business_id=h.business_id '
                     cmd += 'where h.hotel_city = '
                     cmd += '"'+(' ').join(city.split('_'))+'"'
-                    xstng_revs = pd.read_sql_query(cmd, engine).values
+                    xstng_revs = [rev_id[0] for rev_id in pd.read_sql_query(cmd, engine).values]
                     if len(xstng_revs) > 0:
                         bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
                     bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+        else:
+            print('business_id {} already scraped.'.format(biz_id))
 
 
 def scrape_hotel(url, br, engine):
