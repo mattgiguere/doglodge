@@ -39,39 +39,71 @@ def get_bf_reviews(engine):
 
 def get_ta_reviews(engine):
     # restore the bringfido reviews
-    cmd = "SELECT review_text FROM ta_reviews"
+    cmd = "SELECT biz_review_id, review_text FROM ta_reviews"
     tadf = pd.read_sql_query(cmd, engine)
     return tadf
 
 
-def classify_review_type(arg1, arg2):
+def update_table_rev_cat(df, engine):
+    brids = df[df['review_category'] == 'dog']['biz_review_id'].values
+    cmd = 'UPDATE ta_reviews SET review_category = "dog" '
+    cmd += 'WHERE biz_review_id in ('+(',').join(brids)+')'
+
+    conn = engine.connect()
+    conn.execute(cmd)
+
+
+def classify_review_type(db='ta'):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
 
     # get the bringfido reviews
     bfdf = get_bf_reviews(engine)
 
-    # get the ta reviews
-    tadf = get_ta_reviews(engine)
+    if db == 'ta':
+        # get the ta reviews
+        tadf = get_ta_reviews(engine)
 
-    
+    train_data = np.hstack((bfdf['review_text'].values[:1500],
+                            tadf['review_text'].values[:1500]))
+
+    labels = ['dog'] * 1500
+    labels.extend(['general'] * 1500)
+    y_train = labels
+
+    t0 = time()
+    vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5,
+                                 stop_words='english')
+    X_train = vectorizer.fit_transform(train_data)
+    duration = time() - t0
+    print('vectorized in {:.2f} seconds.'.format(duration))
+
+    penalty = 'l2'
+    clf = LinearSVC(loss='l2', penalty=penalty, dual=False, tol=1e-3)
+
+    clf.fit(X_train, y_train)
+
+    X_yrevs = vectorizer.transform(tadf['review_text'].values)
+
+    pred = clf.predict(X_yrevs)
+
+    tadf['review_category'] = pred
+
+    update_table_rev_cat(tadf)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='argparse object.')
     parser.add_argument(
-        'arg1',
-        help='This argument does something.')
-    parser.add_argument(
-        'arg2',
-        help='This argument does something else. By specifying ' +
-             'the "nargs=>" makes this argument not required.',
-             nargs='?')
+        'db',
+        help='This argument specifies the database to update. ' +
+             'the default is ta.',
+             nargs='?', default='ta')
     if len(sys.argv) > 3:
         print('use the command')
-        print('python filename.py tablenum columnnum')
+        print('python classify_review_type.py ta')
         sys.exit(2)
 
     args = parser.parse_args()
 
-    classify_review_type(int(args.arg1), args.arg2)
+    classify_review_type(db=args.db)
