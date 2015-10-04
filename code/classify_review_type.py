@@ -53,14 +53,18 @@ def update_table_rev_cat(df, engine):
     conn.execute(cmd)
 
 
-def classify_review_type(db='ta'):
+def classify_review_type(db='ta', verbose=True):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
 
+    if verbose:
+            print('grabbing bf data...')
     # get the bringfido reviews
     bfdf = get_bf_reviews(engine)
 
     if db == 'ta':
+        if verbose:
+            print('grabbing ta data...')
         # get the ta reviews
         tadf = get_ta_reviews(engine)
 
@@ -71,6 +75,8 @@ def classify_review_type(db='ta'):
     labels.extend(['general'] * 1500)
     y_train = labels
 
+    if verbose:
+        print('vectorizing...')
     t0 = time()
     vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5,
                                  stop_words='english')
@@ -81,15 +87,19 @@ def classify_review_type(db='ta'):
     penalty = 'l2'
     clf = LinearSVC(loss='l2', penalty=penalty, dual=False, tol=1e-3)
 
+    if verbose:
+        print('training model...')
     clf.fit(X_train, y_train)
 
     X_yrevs = vectorizer.transform(tadf['review_text'].values)
 
+    if verbose:
+        print('predicting...')
     pred = clf.predict(X_yrevs)
 
     tadf['review_category'] = pred
 
-    update_table_rev_cat(tadf)
+    update_table_rev_cat(tadf, engine)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
