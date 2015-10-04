@@ -76,7 +76,8 @@ def return_results(url, page, br):
         date = review.find_by_xpath('div/div[contains(@class, "rating")]/span[contains(@class, "ratingDate")]')['title']
         rev = review.find_by_xpath('div/div[contains(@class, "entry")]').text.strip().replace("\n", "")
         if len(usrnm) > 0:
-            username = str(usrnm[0].text).strip()
+            susrnm = usrnm[0].text
+            username = susrnm.decode('utf-8', 'ignore').strip()
             print('Username: {}'.format(username))
         else:
             username = ''
