@@ -29,11 +29,14 @@ def drive_bf_us_cities(num_cities=5, run_scraper=True, starting_city=''):
     To read in the US cities and add the bf results
     to the DB.
     """
-    if num_cities is not 'all':
-        num_cities = int(num_cities)
 
     csf = pd.read_csv('../data/us_cities_over_100k.txt',
                       names=['city', 'state'], delimiter=' ')
+
+    if num_cities is not 'all':
+        num_cities = int(num_cities)
+    else:
+        num_cities = len(csf)
 
     if starting_city is not '':
         num_cities += csf[csf['city'] == starting_city[:-3]].index.values[0]
