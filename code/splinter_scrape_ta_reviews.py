@@ -27,8 +27,8 @@ __status__ = " Development NOT(Prototype or Production)"
 
 
 # change default encoding to handle utf characters
-#reload(sys)
-#sys.setdefaultencoding('utf8')
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 def get_hotel_urls(city, state, engine):
