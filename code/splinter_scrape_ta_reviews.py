@@ -161,7 +161,7 @@ def get_biz_review_ids(city, engine):
     cmd += 'where h.hotel_city = '
     cmd += '"'+(' ').join(city.split('_'))+'"'
     try:
-        xstng_revs = [rev_id[0] for rev_id in pd.read_sql_query(cmd, engine).values]
+        xstng_revs = [int(rev_id[0]) for rev_id in pd.read_sql_query(cmd, engine).values]
     except:
         engine = cadb.connect_aws_db(write_unicode=True)
         xstng_revs = [int(rev_id[0]) for rev_id in pd.read_sql_query(cmd, engine).values]
@@ -173,37 +173,6 @@ def remove_duplicates(bigdf, city, engine):
     if len(xstng_revs) > 0:
         bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
     return bigdf
-
-
-def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0, end_num=-1):
-    """PURPOSE: To """
-    engine = cadb.connect_aws_db(write_unicode=True)
-    blinks = get_hotel_urls(city, state, engine)
-
-    # only do the specified hotel range
-    if start_num != 0:
-        blinks = blinks[start_num:]
-    if end_num != -1:
-        if len(blinks) < end_num:
-            print('end_num exceeded number of hotels. resetting to max.')
-            end_num = len(blinks)
-        blinks = blinks[:end_num]
-
-    br = Browser()
-
-    donebids = get_done_business_ids(city, engine)
-
-    for hotel_id, biz_id, link in blinks:
-        # check to see if there are already reviews for that hotel
-        if int(biz_id) not in donebids:
-            bigdf = scrape_hotel(link, br, engine)
-            bigdf['hotel_id'] = hotel_id
-            bigdf['business_id'] = biz_id
-            bigdf = remove_duplicates(bigdf, city, engine)
-            if write_to_db:
-                bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
-        else:
-            print('business_id {} already scraped.'.format(biz_id))
 
 
 def scrape_hotel(url, br, engine):
@@ -246,6 +215,40 @@ def scrape_hotel(url, br, engine):
         bigdf = bigdf.append(df)
         # more_reviews = False
     return bigdf
+
+
+def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0, end_num=-1):
+    """PURPOSE: To """
+    engine = cadb.connect_aws_db(write_unicode=True)
+    blinks = get_hotel_urls(city, state, engine)
+
+    # only do the specified hotel range
+    if start_num != 0:
+        blinks = blinks[start_num:]
+    if end_num != -1:
+        if len(blinks) < end_num:
+            print('end_num exceeded number of hotels. resetting to max.')
+            end_num = len(blinks)
+        blinks = blinks[:end_num]
+
+    br = Browser()
+
+    donebids = get_done_business_ids(city, engine)
+
+    for hotel_id, biz_id, link in blinks:
+        # check to see if there are already reviews for that hotel
+        if int(biz_id) not in donebids:
+            bigdf = scrape_hotel(link, br, engine)
+            bigdf['hotel_id'] = hotel_id
+            bigdf['business_id'] = biz_id
+            bigdf = remove_duplicates(bigdf, city, engine)
+            if write_to_db:
+                try:
+                    bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+                except:
+                    print('WRITING TO DB FAILED!!!')
+        else:
+            print('business_id {} already scraped.'.format(biz_id))
 
 
 if __name__ == '__main__':
