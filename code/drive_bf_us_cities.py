@@ -33,9 +33,9 @@ def drive_bf_us_cities(num_cities=5, run_scraper=True, starting_city=''):
     csf = pd.read_csv('../data/us_cities_over_100k.txt',
                       names=['city', 'state'], delimiter=' ')
 
-
     print('num_cities is {}'.format(num_cities))
-    if num_cities is not 'all':
+    print('num_cities is all: {}'.format(num_cities is 'all'))
+    if str(num_cities).strip() is not 'all':
         num_cities = int(num_cities)
     else:
         num_cities = len(csf)
