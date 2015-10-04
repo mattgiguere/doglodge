@@ -52,6 +52,29 @@ def get_city(city):
     return city_urls[city]
 
 
+def get_biz_ids(city, engine):
+    cmd = 'SELECT business_id FROM ta_hotels '
+    cmd += 'where hotel_city = '
+    cmd += '"'+(' ').join(city.split('_'))+'"'
+    try:
+        xstng_bizs = [int(biz_id[0]) for biz_id in pd.read_sql_query(cmd, engine).values]
+    except:
+        engine = cadb.connect_aws_db(write_unicode=True)
+        xstng_bizs = [int(biz_id[0]) for biz_id in pd.read_sql_query(cmd, engine).values]
+    return xstng_bizs
+
+
+def remove_duplicate_hotels(bigdf, city, engine):
+    """
+    PURPOSE: To remove the duplicate hotel entries before attempting to write the new entries to the DB.
+    """
+    xstng_bizs = get_biz_ids(city, engine)
+    bigdf['business_id'] = np.int64(bigdf['business_id'].values)
+    if len(xstng_bizs) > 0:
+        bigdf = bigdf[~bigdf['business_id'].isin(xstng_bizs)].copy()
+    return bigdf
+
+
 def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_to_db=False, max_pages=20):
     """PURPOSE: To """
     # this only needs to be done at the very beginning
@@ -258,6 +281,7 @@ def splinter_scrape_ta_hotels(city_url='', city='new_haven', state='ct', write_t
 
     if write_to_db:
         engine = cadb.connect_aws_db(write_unicode=True)
+        remove_duplicate_hotels(bigdf, engine)
         bigdf.to_sql('ta_hotels', engine, if_exists='append', index=False)
 
 
