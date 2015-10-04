@@ -155,6 +155,26 @@ def get_done_business_ids(city, engine):
     return donebids
 
 
+def get_biz_review_ids(city, engine):
+    cmd = 'select biz_review_id from ta_reviews r inner join '
+    cmd += 'ta_hotels h on r.business_id=h.business_id '
+    cmd += 'where h.hotel_city = '
+    cmd += '"'+(' ').join(city.split('_'))+'"'
+    try:
+        xstng_revs = [rev_id[0] for rev_id in pd.read_sql_query(cmd, engine).values]
+    except:
+        engine = cadb.connect_aws_db(write_unicode=True)
+        xstng_revs = [int(rev_id[0]) for rev_id in pd.read_sql_query(cmd, engine).values]
+    return xstng_revs
+
+
+def remove_duplicates(bigdf, city, engine):
+    xstng_revs = get_biz_review_ids(city, engine)
+    if len(xstng_revs) > 0:
+        bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
+    return bigdf
+
+
 def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0, end_num=-1):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
@@ -179,19 +199,9 @@ def splinter_scrape_ta_reviews(city='', state='', write_to_db=False, start_num=0
             bigdf = scrape_hotel(link, br, engine)
             bigdf['hotel_id'] = hotel_id
             bigdf['business_id'] = biz_id
+            bigdf = remove_duplicates(bigdf, city, engine)
             if write_to_db:
-                try:
-                    bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
-                except:
-                    engine = cadb.connect_aws_db(write_unicode=True)
-                    cmd = 'select biz_review_id from ta_reviews r inner join '
-                    cmd += 'ta_hotels h on r.business_id=h.business_id '
-                    cmd += 'where h.hotel_city = '
-                    cmd += '"'+(' ').join(city.split('_'))+'"'
-                    xstng_revs = [rev_id[0] for rev_id in pd.read_sql_query(cmd, engine).values]
-                    if len(xstng_revs) > 0:
-                        bigdf = bigdf[~bigdf['biz_review_id'].isin(xstng_revs)].copy()
-                    bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
+                bigdf.to_sql('ta_reviews', engine, if_exists='append', index=False)
         else:
             print('business_id {} already scraped.'.format(biz_id))
 
