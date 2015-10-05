@@ -105,6 +105,9 @@ color: #9d9d9d;  /*Sets the text hover color on navbar*/
     font-weight: normal;
 }
 
+.night-text {
+    font-size: 12px;
+}
 
 .hotel_img_crop {
     width: 162px;
