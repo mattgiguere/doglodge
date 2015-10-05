@@ -82,7 +82,7 @@
             Map.setCenter(mapCenter);
             </script>
             </div>
-            
+
             <div class="col-lg-5 col-md-5 col-sm-6 hotel-div">
                 <table class="table table-hover">
                 <thead>
@@ -107,9 +107,15 @@
                         <td>
                             <a href="{{url}}" target="new">{{name}} </a>
                         </td>
-                        <td class="hotel_price">
-                            $ {{price}}
-                        </td>
+                        {% if price == 'nan' %}
+                            <td class="hotel_price">
+                                N/A
+                            </td>
+                        {% else %}
+                            <td class="hotel_price">
+                                $ "{{price}}"
+                            </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

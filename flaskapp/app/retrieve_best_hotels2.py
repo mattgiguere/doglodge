@@ -133,7 +133,9 @@ def retrieve_best_hotels2(city, state='', revdb='ta'):
 
     best_dog_hotel_imgs = uniq_df_srtd['hotel_img_url'].values
     best_dog_hotel_urls = uniq_df_srtd['hotel_url'].values
-    best_dog_hotel_prices = np.round(uniq_df_srtd['hotel_price'].values)
+    best_dog_hotel_prices = [str(prc) if prc > 0 else "nan" for prc in np.int64(np.round(uniq_df_srtd['hotel_price'].values))]
+    print('best dog hotel prices')
+    print(best_dog_hotel_prices)
     #print('best dog hotels:')
     #print(best_dog_hotel_names)
 
