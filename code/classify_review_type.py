@@ -79,8 +79,26 @@ def update_table_rev_cat(df, engine):
     conn.execute(cmd)
 
 
-def classify_review_type(traindb='yelp', classdb='ta', verbose=False):
-    """PURPOSE: To """
+def classify_review_type(traindb='yelp', ntrain_dog_revs=1500,
+                         ntrain_gen_revs=1500, classdb='ta', verbose=False):
+    """
+    PURPOSE: To classify reviews as being either pet-related or general.
+
+    :param traindb:
+    The data set to use for training. The default is Yelp.
+
+    :param ntrain_dog_revs:
+    The number of dog-related hotel reviews to use in the training.
+
+    :param ntrain_gen_revs:
+    The number of general hotel reviews to use in the training.
+
+    :param classdb:
+    The data set to classify (either yelp or ta)
+
+    :param verbose:
+    Set this to True to print progress shit.
+    """
     engine = cadb.connect_aws_db(write_unicode=True)
 
     if verbose:
@@ -97,11 +115,11 @@ def classify_review_type(traindb='yelp', classdb='ta', verbose=False):
         print('using Yelp data for training...')
         gentraindf = get_yelp_reviews(engine)
 
-    train_data = np.hstack((bfdf['review_text'].values[:1500],
-                            gentraindf['review_text'].values[:1500]))
+    train_data = np.hstack((bfdf['review_text'].values[:ntrain_dog_revs],
+                            gentraindf['review_text'].values[:ntrain_gen_revs]))
 
-    labels = ['dog'] * 1500
-    labels.extend(['general'] * 1500)
+    labels = ['dog'] * ntrain_dog_revs
+    labels.extend(['general'] * ntrain_gen_revs)
     y_train = labels
 
     if verbose:
@@ -146,15 +164,25 @@ if __name__ == '__main__':
              'the default is yelp.',
              default='yelp')
     parser.add_argument(
+        '--ntrain_dog_revs',
+        help='This argument specifies the number of dog-related reviews ' +
+             'to use for training.',
+             default=1500, type=int)
+    parser.add_argument(
         '-c', '--classdb',
         help='This argument specifies the database to classify. ' +
              'the default is ta.',
              default='ta')
     parser.add_argument(
+        '--ntrain_gen_revs',
+        help='This argument specifies the number of general hotel reviews ' +
+             'to use for training.',
+             default=1500, type=int)
+    parser.add_argument(
         '-v', '--verbose',
         help='Print more shit.',
-             default=False)
-    if len(sys.argv) > 3:
+             action='store_true')
+    if len(sys.argv) > 11:
         print('use the command')
         print('python classify_review_type.py -t yelp -c ta --verbose')
         sys.exit(2)
@@ -162,5 +190,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     classify_review_type(traindb=args.traindb,
+                         ntrain_dog_revs=args.ntrain_dog_revs,
                          classdb=args.classdb,
+                         ntrain_gen_revs=args.ntrain_gen_revs,
                          verbose=args.verbose)
