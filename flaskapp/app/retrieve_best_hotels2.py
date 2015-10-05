@@ -34,7 +34,7 @@ __status__ = " Development NOT(Prototype or Production)"
 def create_and_train_model(engine):
     cmd = "SELECT review_rating, review_text FROM bf_reviews"
     bfdf = pd.read_sql_query(cmd, engine)
-    bfdfl = bfdf[bfdf['review_text'].str.len() > 350].copy()
+    bfdfl = bfdf[bfdf['review_text'].str.len() > 300].copy()
     train_data = bfdfl['review_text'].values[:1000]
     y_train = bfdfl['review_rating'].values[:1000]
 
@@ -51,21 +51,32 @@ def create_and_train_model(engine):
     return clf, vectorizer
 
 
-def get_yelp_data(city, engine):
-    # read in the review data:
-    cmd = "SELECT * FROM yelp_reviews WHERE review_category = 'dog'"
-    yelp_reviews = pd.read_sql(cmd, engine)
+def get_ta_reviews(city, engine, remove_shorts=True):
+    # restore the bringfido reviews
+    cmd = "SELECT h.hotel_url, h.hotel_img_url, h.business_id, "
+    cmd += "h.hotel_name, h.hotel_price, r.review_text "
+    cmd += "FROM ta_reviews r INNER JOIN ta_hotels h "
+    cmd += "ON h.business_id=r.business_id "
+    cmd += "WHERE h.hotel_city='" + city + "';"
+    tadf = pd.read_sql_query(cmd, engine)
+    if remove_shorts:
+        tadf = tadf[tadf['review_text'].str.len() > 300].copy()
+    return tadf
 
-    # now read in the hotel data:
-    cmd = "SELECT * FROM yelp_hotels WHERE hotel_city='" + city + "'"
-    yelp_hotels = pd.read_sql(cmd, engine)
 
-    # join the two DataFrames:
-    yelp = pd.merge(yelp_hotels, yelp_reviews, on='business_id', how='inner')
-    return yelp
+def get_yelp_reviews(city, engine, remove_shorts=True):
+    # restore the bringfido reviews
+    cmd = "SELECT h.business_id, h.hotel_name, r.review_text "
+    cmd += "FROM yelp_reviews r INNER JOIN yelp_hotels h "
+    cmd += "ON r.business_id=h.business_id "
+    cmd += "WHERE h.hotel_city='" + city + "';"
+    ydf = pd.read_sql_query(cmd, engine)
+    if remove_shorts:
+        ydf = ydf[ydf['review_text'].str.len() > 300].copy()
+    return ydf
 
 
-def retrieve_best_hotels2(city, state=''):
+def retrieve_best_hotels2(city, state='', revdb='ta'):
     """PURPOSE: To """
     city = str(city).lower()
 
@@ -74,13 +85,16 @@ def retrieve_best_hotels2(city, state=''):
     # create and train the model to use to classify ratings:
     clf, vectorizer = create_and_train_model(engine)
 
-    yelp = get_yelp_data(city, engine)
+    if revdb == 'yelp':
+        revdf = get_yelp_reviews(city, engine)
+    if revdb == 'ta':
+        revdf = get_ta_reviews(city, engine)
 
-    yelp_review_text = yelp['review_text'].values
-    print('Number of reviews: {}'.format(len(yelp_review_text)))
+    review_text = revdf['review_text'].values
+    print('Number of reviews: {}'.format(len(review_text)))
 
     t0 = time()
-    X_pred = vectorizer.transform(yelp_review_text)
+    X_pred = vectorizer.transform(review_text)
     duration = time() - t0
     print('transformed test data in {:.2f} seconds.'.format(duration))
 
@@ -92,27 +106,38 @@ def retrieve_best_hotels2(city, state=''):
 
     #now predict the rating based on the sentiment of the review:
     y_pred = clf.predict(X_pred)
-    yelp['dog_rating'] = y_pred
+    revdf['dog_rating'] = y_pred
 
     # get the unique hotels
-    unique_biz_ids = np.unique(yelp['business_id'])
+    unique_biz_ids = np.unique(revdf['business_id'])
 
-    unique_hotel_df = yelp[yelp['business_id'].isin(unique_biz_ids)].copy()
+    unique_hotel_df = revdf[revdf['business_id'].isin(unique_biz_ids)].copy()
 
     unique_hotel_df.drop_duplicates(cols='business_id', inplace=True)
+    unique_hotel_df['num_dog_reviews'] = [len(revdf[revdf['business_id'] == business_id]) for business_id in unique_hotel_df['business_id'].values]
+    max_revs = unique_hotel_df['num_dog_reviews'].max()
+    print('max reviews is: {}'.format(max_revs))
 
-    unique_hotel_df['average_dog_rating'] = [np.mean(yelp[yelp['business_id'] == business_id]['dog_rating'].values) for business_id in unique_hotel_df['business_id'].values]
+    unique_hotel_df['average_dog_rating'] = [np.mean(revdf[revdf['business_id'] == business_id]['dog_rating'].values) * 0.85 + unique_hotel_df[unique_hotel_df['business_id'] == business_id]['num_dog_reviews'].values[0]/max_revs for business_id in unique_hotel_df['business_id'].values]
 
-    best_dog_hotel_names = unique_hotel_df.sort(columns='average_dog_rating', ascending=False)['hotel_name'].head(10).values
+    print('dog ratings are...')
+    print(unique_hotel_df['average_dog_rating'].values)
 
-    best_dog_hotel_ratings = np.round(unique_hotel_df.sort(columns='average_dog_rating', ascending=False)['average_dog_rating'].head(10).values, 1)
+    uniq_df_srtd = unique_hotel_df.sort(columns='average_dog_rating', ascending=False).head(10).copy()
+
+    best_dog_hotel_names = uniq_df_srtd['hotel_name'].values
+
+    best_dog_hotel_ratings = np.round(uniq_df_srtd['average_dog_rating'].values, 1)
 
     string_ratings = [str(rat) for rat in best_dog_hotel_ratings]
 
+    best_dog_hotel_imgs = uniq_df_srtd['hotel_img_url'].values
+    best_dog_hotel_urls = uniq_df_srtd['hotel_url'].values
+    best_dog_hotel_prices = np.round(uniq_df_srtd['hotel_price'].values)
     #print('best dog hotels:')
     #print(best_dog_hotel_names)
 
-    return best_dog_hotel_names, string_ratings
+    return best_dog_hotel_names, string_ratings, best_dog_hotel_imgs, best_dog_hotel_urls, best_dog_hotel_prices
 
 
 if __name__ == '__main__':

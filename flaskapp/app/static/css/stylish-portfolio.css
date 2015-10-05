@@ -94,6 +94,18 @@ color: #9d9d9d;  /*Sets the text hover color on navbar*/
   border-radius: 10px;
 }
 
+.hotel_img_crop {
+    width: 162px;
+    height: 100px;
+    overflow: hidden;
+}
+
+.hotel_img_crop img {
+    width: 323px;
+    height: 200px;
+    margin: -75px 0px 0px -100px;
+}
+
 /* Custom Button Styles */
 
 .btn-dark {

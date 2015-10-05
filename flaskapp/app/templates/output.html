@@ -88,17 +88,27 @@
                 <thead>
                     <tr>
                         <th>Rating</th>
+                        <th>Hotel Image</th>
                         <th>Hotel Name</th>
+                        <th>Avg Price</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rating, name in ratings %}
+                    {% for rating, name, img, url, price in ratings %}
                     <tr>
-                        <td>
+                        <td class="hotel_rating">
                             {{rating}}
                         </td>
                         <td>
-                            {{name}}
+                            <div class="hotel_img_crop">
+                                <img src="{{img}}">
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{url}}" target="new">{{name}} </a>
+                        </td>
+                        <td class="hotel_price">
+                            $ {{price}}
                         </td>
                     </tr>
                     {% endfor %}
