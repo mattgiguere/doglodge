@@ -17,8 +17,8 @@ import pandas as pd
 from time import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
-from sklearn.neighbors import NearestCentroid
-from sklearn import metrics
+# from sklearn.neighbors import NearestCentroid
+# from sklearn import metrics
 import connect_aws_db as cadb
 
 
@@ -30,18 +30,43 @@ __email__ = "matthew.giguere@yale.edu"
 __status__ = " Development NOT(Prototype or Production)"
 
 
-def get_bf_reviews(engine):
+def reset_review_cats(engine):
+    """
+    PURPOSE:
+    To set all the review categories in the ta_reviews table
+    back to NULL.
+    """
+    cmd = 'UPDATE ta_reviews set review_category=NULL;'
+
+    conn = engine.connect()
+    conn.execute(cmd)
+
+
+def get_bf_reviews(engine, remove_shorts=True):
     # restore the bringfido reviews
     cmd = "SELECT review_text FROM bf_reviews"
     bfdf = pd.read_sql_query(cmd, engine)
+    if remove_shorts:
+        bfdf = bfdf[bfdf['review_text'].str.len() > 300].copy()
     return bfdf
 
 
-def get_ta_reviews(engine):
+def get_ta_reviews(engine, remove_shorts=True):
     # restore the bringfido reviews
     cmd = "SELECT biz_review_id, review_text FROM ta_reviews"
     tadf = pd.read_sql_query(cmd, engine)
+    if remove_shorts:
+        tadf = tadf[tadf['review_text'].str.len() > 300].copy()
     return tadf
+
+
+def get_yelp_reviews(engine, remove_shorts=True):
+    # restore the bringfido reviews
+    cmd = "SELECT yelp_review_id, review_text FROM yelp_reviews"
+    ydf = pd.read_sql_query(cmd, engine)
+    if remove_shorts:
+        ydf = ydf[ydf['review_text'].str.len() > 300].copy()
+    return ydf
 
 
 def update_table_rev_cat(df, engine):
@@ -54,7 +79,7 @@ def update_table_rev_cat(df, engine):
     conn.execute(cmd)
 
 
-def classify_review_type(db='ta', verbose=True):
+def classify_review_type(traindb='yelp', classdb='ta', verbose=True):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
 
@@ -63,14 +88,15 @@ def classify_review_type(db='ta', verbose=True):
     # get the bringfido reviews
     bfdf = get_bf_reviews(engine)
 
-    if db == 'ta':
-        if verbose:
-            print('grabbing ta data...')
-        # get the ta reviews
-        tadf = get_ta_reviews(engine)
+    if verbose:
+        print('grabbing general review data...')
+    if traindb == 'ta':
+        gentraindf = get_ta_reviews(engine)
+    if traindb == 'yelp':
+        gentraindf = get_yelp_reviews(engine)
 
     train_data = np.hstack((bfdf['review_text'].values[:1500],
-                            tadf['review_text'].values[:1500]))
+                            gentraindf['review_text'].values[:1500]))
 
     labels = ['dog'] * 1500
     labels.extend(['general'] * 1500)
@@ -92,15 +118,20 @@ def classify_review_type(db='ta', verbose=True):
         print('training model...')
     clf.fit(X_train, y_train)
 
-    X_yrevs = vectorizer.transform(tadf['review_text'].values)
+    if classdb == 'yelp':
+        classdf = get_yelp_reviews(engine, remove_shorts=False)
+    if classdb == 'ta':
+        classdf = get_ta_reviews(engine, remove_shorts=False)
+
+    X_yrevs = vectorizer.transform(classdf['review_text'].values)
 
     if verbose:
         print('predicting...')
     pred = clf.predict(X_yrevs)
 
-    tadf['review_category'] = pred
+    classdf['review_category'] = pred
 
-    update_table_rev_cat(tadf, engine)
+    update_table_rev_cat(classdf, engine)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
