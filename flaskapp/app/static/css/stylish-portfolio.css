@@ -100,6 +100,12 @@ color: #9d9d9d;  /*Sets the text hover color on navbar*/
 }
 
 
+.hotel_price {
+    font-size: 20px;
+    font-weight: normal;
+}
+
+
 .hotel_img_crop {
     width: 162px;
     height: 100px;
