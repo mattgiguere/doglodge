@@ -66,27 +66,13 @@
         <div class="row">&nbsp;</div>
 
         <div class="row">
-            <div class="col-md-5 col-sm-6 col-md-offset-1">
-            <!-- <h2> Future Map Will Go Here! </h2> -->
-            <img id='mapimage' src= {{ url_for('static', filename = 'img/Phoenix.png') }} width="100%">
-            <script>
-            var mapCenter = new google.maps.LatLng(mapOptions['center']['lat'], mapOptions['center']['lng']);
-            var myOptions = {
-                center: mapCenter,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            }
-            var Map = google.maps.Map(document.getElementById(‘Map’), myOptions);
 
-            var mapCenter = new google.maps.LatLng(lat, lng);//lat, lng – coordinates of the new map center
-            Map.setCenter(mapCenter);
-            </script>
-            </div>
-
-            <div class="col-lg-5 col-md-5 col-sm-6 hotel-div">
+        <!-- review section -->
+            <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
                 <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Rating</th>
+                        <th> &nbsp; Rating</th>
                         <th>Hotel Image</th>
                         <th>Hotel Name</th>
                         <th>Avg Price</th>
@@ -123,7 +109,8 @@
 
         </div>
 
-
+        <div class="row">
+        </div>
                 <!--   
                 <div class="container">
                			<div class="starter-template">
