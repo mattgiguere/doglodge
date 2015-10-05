@@ -79,7 +79,7 @@ def update_table_rev_cat(df, engine):
     conn.execute(cmd)
 
 
-def classify_review_type(traindb='yelp', classdb='ta', verbose=True):
+def classify_review_type(traindb='yelp', classdb='ta', verbose=False):
     """PURPOSE: To """
     engine = cadb.connect_aws_db(write_unicode=True)
 
@@ -91,8 +91,10 @@ def classify_review_type(traindb='yelp', classdb='ta', verbose=True):
     if verbose:
         print('grabbing general review data...')
     if traindb == 'ta':
+        print('using TA data for training...')
         gentraindf = get_ta_reviews(engine)
     if traindb == 'yelp':
+        print('using Yelp data for training...')
         gentraindf = get_yelp_reviews(engine)
 
     train_data = np.hstack((bfdf['review_text'].values[:1500],
@@ -119,8 +121,10 @@ def classify_review_type(traindb='yelp', classdb='ta', verbose=True):
     clf.fit(X_train, y_train)
 
     if classdb == 'yelp':
+        print('categorizing Yelp data...')
         classdf = get_yelp_reviews(engine, remove_shorts=False)
     if classdb == 'ta':
+        print('categorizing TA data...')
         classdf = get_ta_reviews(engine, remove_shorts=False)
 
     X_yrevs = vectorizer.transform(classdf['review_text'].values)
@@ -137,15 +141,26 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='argparse object.')
     parser.add_argument(
-        'db',
-        help='This argument specifies the database to update. ' +
+        '-t', '--traindb',
+        help='This argument specifies the database to use for training. ' +
+             'the default is yelp.',
+             default='yelp')
+    parser.add_argument(
+        '-c', '--classdb',
+        help='This argument specifies the database to classify. ' +
              'the default is ta.',
-             nargs='?', default='ta')
+             default='ta')
+    parser.add_argument(
+        '-v', '--verbose',
+        help='Print more shit.',
+             default=False)
     if len(sys.argv) > 3:
         print('use the command')
-        print('python classify_review_type.py ta')
+        print('python classify_review_type.py -t yelp -c ta --verbose')
         sys.exit(2)
 
     args = parser.parse_args()
 
-    classify_review_type(db=args.db)
+    classify_review_type(traindb=args.traindb,
+                         classdb=args.classdb,
+                         verbose=args.verbose)
