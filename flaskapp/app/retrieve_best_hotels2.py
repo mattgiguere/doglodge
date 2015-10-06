@@ -115,10 +115,11 @@ def retrieve_best_hotels2(city, state='', revdb='ta'):
 
     unique_hotel_df.drop_duplicates(cols='business_id', inplace=True)
     unique_hotel_df['num_dog_reviews'] = [len(revdf[revdf['business_id'] == business_id]) for business_id in unique_hotel_df['business_id'].values]
-    max_revs = unique_hotel_df['num_dog_reviews'].max()
+    #max_revs = unique_hotel_df['num_dog_reviews'].max()
+    max_revs = 100
     print('max reviews is: {}'.format(max_revs))
 
-    unique_hotel_df['average_dog_rating'] = [np.mean(revdf[revdf['business_id'] == business_id]['dog_rating'].values) * 0.85 + unique_hotel_df[unique_hotel_df['business_id'] == business_id]['num_dog_reviews'].values[0]/max_revs for business_id in unique_hotel_df['business_id'].values]
+    unique_hotel_df['average_dog_rating'] = [np.mean(revdf[revdf['business_id'] == business_id]['dog_rating'].values) * 0.8 + min(1, unique_hotel_df[unique_hotel_df['business_id'] == business_id]['num_dog_reviews'].values[0]/max_revs) for business_id in unique_hotel_df['business_id'].values]
 
     print('dog ratings are...')
     print(unique_hotel_df['average_dog_rating'].values)
