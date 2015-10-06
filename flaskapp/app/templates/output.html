@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
     <meta charset="utf-8">
@@ -27,146 +26,153 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
 </head>
 
 <body>
-
+<!-- Header (contains the background image, which is why everything is inside of it-->
+<header id="top" class="header">
     <!-- Navigation -->
     <div class="navbar navbar-inverse navbar-fixed-top navbar-custom">
-    <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">doglodge.io</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="https://speakerdeck.com/mattgiguere/doglodgewk4" target="new">Deck</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="https://twitter.com/magickair" target="new">Twitter</a></li>
-            <li><a href="https://www.linkedin.com/in/mjgiguere" target="new">LinkedIn</a></li>
-            <li><a href="https://github.com/mattgiguere/doglodge" target="new">Github</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-    </div>
-    </div>
-
-    <!-- Header -->
-    <header id="top" class="header">
-        <div class="text-vertical-center">
-        <h2 id="dog-dest-hdr">Best Places to Stay With Your Dog in {{destination}} </h2>
-
-        <div class="row">&nbsp;</div>
-
-        <div class="row">
-
-        <!-- review section -->
-            <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
-                <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th> &nbsp; Rating</th>
-                        <th>Hotel Image</th>
-                        <th>Hotel Name</th>
-                        <th>Avg Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rating, name, img, url, price in ratings %}
-                    <tr>
-                        <td class="hotel_rating">
-                            {{rating}}
-                        </td>
-                        <td>
-                            <div class="hotel_img_crop">
-                                <img src="{{img}}">
-                            </div>
-                        </td>
-                        <td>
-                            <a href="{{url}}" target="new">{{name}} </a>
-                        </td>
-                        {% if price == 'nan' %}
-                            <td class="hotel_price">
-                                N/A
-                            </td>
-                        {% else %}
-                            <td class="hotel_price">
-                                $ {{price}} <div class="night-text">/night</div>
-                            </td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                </table>
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">doglodge.io</a>
             </div>
-
+            <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+                <li><a href="https://speakerdeck.com/mattgiguere/doglodgewk4" target="new">Deck</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="https://twitter.com/magickair" target="new">Twitter</a></li>
+                <li><a href="https://www.linkedin.com/in/mjgiguere" target="new">LinkedIn</a></li>
+                <li><a href="https://github.com/mattgiguere/doglodge" target="new">Github</a></li>
+            </ul>
+            </div><!--/.nav-collapse -->
         </div>
+    </div>
 
-        <div class="row">
-        </div>
-                <!--   
-                <div class="container">
-               			<div class="starter-template">
-                   		<h3>Results:</h3>
-                   		<p class="lead"> {{the_result}} </p>
-               	</div>
+    <div class="text-vertical-center">
+    {% if unavailable == False %}
+    <h2 id="dog-dest-hdr">Best Places to Stay With Your Dog in {{destination}} </h2>
 
-                -->
-               	<!--<div class="col-md-6"> -->
-                <!--
-               	<div class="map">
-               	{% include map_name %}
-               	</div>
-               	</div?>           
-                -->
-               	</div><!-- /.container -->
-        </div>
-    </header>
+    <div class="row">&nbsp;</div>
 
-    <!-- jQuery -->
-    <script src="../static/js/jquery.js"></script>
+    <div class="row">
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../static/js/bootstrap.min.js"></script>
+    <!-- review section -->
+    <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
+    <table class="table table-hover">
+    <thead>
+    <tr>
+    <th> &nbsp; Rating</th>
+    <th>Hotel Image</th>
+    <th>Hotel Name</th>
+    <th>Avg Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for rating, name, img, url, price in ratings %}
+    <tr>
+    <td class="hotel_rating">
+    {{rating}}
+    </td>
+    <td>
+    <div class="hotel_img_crop">
+    <img src="{{img}}">
+    </div>
+    </td>
+    <td>
+    <a href="{{url}}" target="new">{{name}} </a>
+    </td>
+    {% if price == 'nan' %}
+    <td class="hotel_price">
+    N/A
+    </td>
+    {% else %}
+    <td class="hotel_price">
+    $ {{price}} <div class="night-text">/night</div>
+    </td>
+    {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div class="row">&nbsp;</div>
 
-    <!-- Custom Theme JavaScript -->
-    <script>
-    // Closes the sidebar menu
-    $("#menu-close").click(function(e) {
-        e.preventDefault();
-        $("#sidebar-wrapper").toggleClass("active");
-    });
+    <div class="row">
 
-    // Opens the sidebar menu
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#sidebar-wrapper").toggleClass("active");
-    });
+    <!-- review section -->
+    <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
+    <h3 id="dog-dest-unavail">
+        We're sorry, but dog lodges are currently available for {{destination}}. 
+        Please select from the following available destinations below. 
+    </h3>
+    <table class="table table-hover">
+    <tbody>
+    {% for city in available_cities %}
+    <tr>
+    <td>
+    <a href="http://doglodge.io/output?ID={{city}}">{{city}} </a>
+    </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </div>
+    {% endif %}
+    </div>
+    </div>
+    </div>
 
-    // Scrolls to the selected menu item on the page
-    $(function() {
-        $('a[href*=#]:not([href=#])').click(function() {
-            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
+    <div class="row">
+    </div>
+</header>
 
-                var target = $(this.hash);
-                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-                if (target.length) {
-                    $('html,body').animate({
-                        scrollTop: target.offset().top
-                    }, 1000);
-                    return false;
-                }
+<!-- jQuery -->
+<script src="../static/js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="../static/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script>
+// Closes the sidebar menu
+$("#menu-close").click(function(e) {
+    e.preventDefault();
+    $("#sidebar-wrapper").toggleClass("active");
+});
+
+// Opens the sidebar menu
+$("#menu-toggle").click(function(e) {
+    e.preventDefault();
+    $("#sidebar-wrapper").toggleClass("active");
+});
+
+// Scrolls to the selected menu item on the page
+$(function() {
+    $('a[href*=#]:not([href=#])').click(function() {
+        if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
+
+            var target = $(this.hash);
+            target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+            if (target.length) {
+                $('html,body').animate({
+                    scrollTop: target.offset().top
+                }, 1000);
+                return false;
             }
-        });
+        }
     });
-    </script>
+});
+</script>
 
 </body>
 
