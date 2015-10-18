@@ -78,7 +78,7 @@ def get_yelp_reviews(city, engine, remove_shorts=True):
 
 def retrieve_best_hotels2(city, state='',
                           revdb='ta',
-                          max_revs=20):
+                          max_revs=10):
     """PURPOSE: To """
     city = str(city).lower()
 
