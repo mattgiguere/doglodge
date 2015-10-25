@@ -1,8 +1,8 @@
 from flask import render_template
 from app import app
 from flask import request
-import retrieve_best_hotels2 as rbh
-
+# import retrieve_best_hotels2 as rbh
+import retrieve_best_hotels3 as rbh
 
 available_cities = [
     'new york city',
@@ -43,7 +43,7 @@ def call_output():
     tdest = str(destination).split(',')[0].strip().lower()
 
     if tdest in available_cities:
-        hotel_names, hotel_ratings, hotel_imgs, hotel_urls, hotel_prices = rbh.retrieve_best_hotels2(destination)
+        hotel_names, hotel_ratings, hotel_imgs, hotel_urls, hotel_prices = rbh.retrieve_best_hotels3(destination)
         return render_template("output.html",
                                destination=destination, map_name='map4.html', unavailable=False,
                                ratings=zip(hotel_ratings, hotel_names, hotel_imgs, hotel_urls, hotel_prices))
