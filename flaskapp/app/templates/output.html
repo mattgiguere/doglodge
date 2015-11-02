@@ -49,6 +49,7 @@
                 <li><a href="https://speakerdeck.com/mattgiguere/doglodgewk4" target="new">Deck</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://mattgiguere.com" target="new">Me</a></li>
                 <li><a href="https://twitter.com/magickair" target="new">Twitter</a></li>
                 <li><a href="https://www.linkedin.com/in/mjgiguere" target="new">LinkedIn</a></li>
                 <li><a href="https://github.com/mattgiguere/doglodge" target="new">Github</a></li>
@@ -59,80 +60,80 @@
 
     <div class="text-vertical-center">
     {% if unavailable == False %}
-    <h2 id="dog-dest-hdr">Best Places to Stay With Your Dog in {{destination}} </h2>
+        <h2 id="dog-dest-hdr">Best Places to Stay With Your Dog in {{destination}} </h2>
 
-    <div class="row">&nbsp;</div>
+        <div class="row">&nbsp;</div>
 
-    <div class="row">
+        <div class="row">
 
-    <!-- review section -->
-    <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
-    <table class="table table-hover">
-    <thead>
-    <tr>
-    <th> &nbsp; Rating</th>
-    <th>Hotel Image</th>
-    <th>Hotel Name</th>
-    <th>Avg Price</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for rating, name, img, url, price in ratings %}
-    <tr>
-    <td class="hotel_rating">
-    {{rating}}
-    </td>
-    <td>
-    <div class="hotel_img_crop">
-    <img src="{{img}}">
-    </div>
-    </td>
-    <td>
-    <a href="{{url}}" target="new">{{name}} </a>
-    </td>
-    {% if price == 'nan' %}
-    <td class="hotel_price">
-    N/A
-    </td>
+        <!-- review section -->
+        <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
+        <table class="table table-hover">
+        <thead>
+        <tr>
+        <th> &nbsp; Rating</th>
+        <th>Hotel Image</th>
+        <th>Hotel Name</th>
+        <th>Avg Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for rating, name, img, url, price in ratings %}
+        <tr>
+        <td class="hotel_rating">
+        {{rating}}
+        </td>
+        <td>
+        <div class="hotel_img_crop">
+        <img src="{{img}}">
+        </div>
+        </td>
+        <td>
+        <a href="{{url}}" target="new">{{name}} </a>
+        </td>
+        {% if price == 'nan' %}
+        <td class="hotel_price">
+        N/A
+        </td>
+        {% else %}
+        <td class="hotel_price">
+        $ {{price}} <div class="night-text">/night</div>
+        </td>
+        {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+        </div>
     {% else %}
-    <td class="hotel_price">
-    $ {{price}} <div class="night-text">/night</div>
-    </td>
-    {% endif %}
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    </div>
-    {% else %}
-    <div class="row">&nbsp;</div>
+        <div class="row" id="top-space-unavail">&nbsp;</div>
 
-    <div class="row">
+        <div class="row">
 
-    <!-- review section -->
-    <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
-    <h3 id="dog-dest-unavail">
-        We're sorry, but dog lodges are currently available for {{destination}}. 
-        Please select from the following available destinations below. 
-    </h3>
-    <table class="table table-hover">
-    <tbody>
-    {% for city in available_cities %}
-    <tr>
-    <td>
-    <a href="http://doglodge.io/output?ID={{city}}">{{city}} </a>
-    </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    </div>
+        <!-- review section -->
+        <div class="col-lg-8 col-md-10 col-sm-12 col-lg-offset-2 col-md-offset-1 hotel-div">
+        <h3 id="dog-dest-unavail">
+            We're sorry, but doglodge.io does not yet provide information for {{destination}}. 
+            Please select from the following available destinations:
+        </h3>
+        <table class="table table-hover">
+        <tbody>
+        {% for city in available_cities %}
+        <tr>
+        <td>
+        <a href="http://doglodge.io/output?ID={{city}}">{{city}} </a>
+        </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+        </div>
     {% endif %}
     </div>
     </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="bottom-spacer">&nbsp;
     </div>
 </header>
 
