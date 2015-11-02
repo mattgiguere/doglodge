@@ -3,6 +3,10 @@ from app import app
 from flask import request
 # import retrieve_best_hotels2 as rbh
 import retrieve_best_hotels3 as rbh
+import sys
+import os
+import connect_aws_db as cadb
+
 
 available_cities = [
     'new york city',
@@ -25,13 +29,14 @@ available_cities = [
     'santa clara',
     ]
 
-@app.route('/')
 
+@app.route('/')
+#def hello_world():
+#  return 'Hello again, from Dog Lodge! '#+sys.version+' *** '+(' ').join(sys.path)
 
 @app.route('/index')
 def index():
     return render_template("index.html")
-
 
 @app.route('/output')
 def call_output():
@@ -53,7 +58,24 @@ def call_output():
                                unavailable=True,
                                available_cities=available_cities)
 
-    #       title = 'Home',
-    #       user = user)
+@app.route('/countme/<input_str>')
+def count_me(input_str):
+    return input_str
 
+@app.route('/creds/')
+def creds():
+    outpt = 'username: {}\n'.format('Robert')
+    outpt += 'db: {}\n'.format('Scotland')
+    return 'howdy\n'+outpt
 
+@app.route('/version/')
+def return_python_version():
+    return 'Python Version: {}\n'.format(sys.version)
+
+@app.route('/rbh/')
+def return_best_hotels():
+    hotel_names, hotel_ratings = rbh.retrieve_best_hotels3('Phoenix')
+    return 'howdy\n'+('-').join(hotel_names)
+
+if __name__ == '__main__':
+  app.run()
