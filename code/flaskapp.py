@@ -1,8 +1,9 @@
 from flask import Flask
 from flask import render_template
 from flask import request
-import retrieve_best_hotels2 as rbh
+import retrieve_best_hotels3 as rbh
 import sys
+import logging
 import os
 import connect_aws_db as cadb
 
@@ -31,6 +32,10 @@ available_cities = [
 
 app = Flask(__name__)
 
+handler = logging.FileHandler('/var/logs/doglodge_error.log')  # errors logged to this file
+handler.setLevel(logging.ERROR)  # only log errors and above
+app.logger.addHandler(handler)  # attach the handler to the app's logger
+
 @app.route('/')
 #def hello_world():
 #  return 'Hello again, from Dog Lodge! '#+sys.version+' *** '+(' ').join(sys.path)
@@ -49,7 +54,7 @@ def call_output():
     tdest = str(destination).split(',')[0].strip().lower()
 
     if tdest in available_cities:
-        hotel_names, hotel_ratings, hotel_imgs, hotel_urls, hotel_prices = rbh.retrieve_best_hotels2(destination)
+        hotel_names, hotel_ratings, hotel_imgs, hotel_urls, hotel_prices = rbh.retrieve_best_hotels3(destination)
         return render_template("output.html",
                                destination=destination, map_name='map4.html', unavailable=False,
                                ratings=zip(hotel_ratings, hotel_names, hotel_imgs, hotel_urls, hotel_prices))
@@ -75,7 +80,7 @@ def return_python_version():
 
 @app.route('/rbh/')
 def return_best_hotels():
-    hotel_names, hotel_ratings = rbh.retrieve_best_hotels2('Phoenix')
+    hotel_names, hotel_ratings = rbh.retrieve_best_hotels3('Phoenix')
     return 'howdy\n'+('-').join(hotel_names)
 
 if __name__ == '__main__':
