@@ -28,6 +28,18 @@ body {
     border-radius: 10px;
 }
 
+#top-space-unavail {
+    margin-top: 50px;
+}
+
+#bottom-spacer {
+    margin-bottom: 200px;
+    margin-top: 200px;
+}
+
+#dog-dest-unavail {
+    margin-top: 10px;
+}
 /* navbar */
 .navbar-custom {
     background-color: #F8F7FE;
