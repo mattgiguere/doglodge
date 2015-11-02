@@ -38,9 +38,11 @@ def get_ta_reviews(city, engine, remove_shorts=True):
     cmd += "ON h.business_id=r.business_id "
     cmd += "WHERE h.hotel_city='" + city + "' "
     cmd += "AND r.review_category='dog';"
-    tadf = pd.read_sql_query(cmd, engine)
     if remove_shorts:
-        tadf = tadf[tadf['review_text'].str.len() > 300].copy()
+        cmd += "AND CHAR_LENGTH(r.review_text) > 300"
+    tadf = pd.read_sql_query(cmd, engine)
+    # if remove_shorts:
+    #     tadf = tadf[tadf['review_text'].str.len() > 300].copy()
     return tadf
 
 
@@ -89,8 +91,8 @@ def retrieve_best_hotels3(city, state='',
 
     unique_hotel_df['average_dog_rating'] = [np.mean(revdf[revdf['business_id'] == business_id]['dog_rating'].values) * 0.8 + min(1, unique_hotel_df[unique_hotel_df['business_id'] == business_id]['num_dog_reviews'].values[0]/max_revs) for business_id in unique_hotel_df['business_id'].values]
 
-    print('dog ratings are...')
-    print(unique_hotel_df['average_dog_rating'].values)
+    # print('dog ratings are...')
+    # print(unique_hotel_df['average_dog_rating'].values)
 
     uniq_df_srtd = unique_hotel_df.sort_values(by='average_dog_rating', ascending=False).head(10).copy()
 
@@ -103,8 +105,8 @@ def retrieve_best_hotels3(city, state='',
     best_dog_hotel_imgs = uniq_df_srtd['hotel_img_url'].values
     best_dog_hotel_urls = uniq_df_srtd['hotel_url'].values
     best_dog_hotel_prices = [str(prc) if prc > 0 else "nan" for prc in np.int64(np.round(uniq_df_srtd['hotel_price'].values))]
-    print('best dog hotel prices')
-    print(best_dog_hotel_prices)
+    # print('best dog hotel prices')
+    # print(best_dog_hotel_prices)
     #print('best dog hotels:')
     #print(best_dog_hotel_names)
 
