@@ -73,6 +73,6 @@ def connect_aws_db(legacy=False, write_unicode=False):
         if write_unicode:
             cmd += '?charset=utf8'
 
-        engine = create_engine(cmd)
+        engine = create_engine(cmd, pool_recycle=600)
         return engine
 
